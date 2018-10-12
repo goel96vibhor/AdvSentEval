@@ -54,10 +54,13 @@ class SSTEval(object):
         assert max(sst_data['y']) == self.nclasses - 1
         return sst_data
 
+    def generateAdvSamples(self, params, adversarialFunc):
+
+
     def run(self, params, batcher):
         sst_embed = {'train': {}, 'dev': {}, 'test': {}}
         bsize = params.batch_size
-
+        adversarialFunc = params.adversarialFunc
         for key in self.sst_data:
             logging.info('Computing embedding for {0}'.format(key))
             # Sort to reduce padding
@@ -77,7 +80,8 @@ class SSTEval(object):
 
         config_classifier = {'nclasses': self.nclasses, 'seed': self.seed,
                              'usepytorch': params.usepytorch,
-                             'classifier': params.classifier}
+                             'classifier': params.classifier,
+                             'adversarialFunc': params.adversarialFunc}
 
         clf = SplitClassifier(X={'train': sst_embed['train']['X'],
                                  'valid': sst_embed['dev']['X'],

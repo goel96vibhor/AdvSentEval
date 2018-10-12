@@ -243,4 +243,15 @@ class SplitClassifier(object):
 
         testaccuracy = clf.score(self.X['test'], self.y['test'])
         testaccuracy = round(100*testaccuracy, 2)
+        print('devacc: ' + devaccuracy+ ' acc: ' + testaccuracy +
+                ' ndev: ' + len(self.X['train']) +
+                ' ntest: ' + len(self.X['test']))
+
+        if self.classifier_config.adversarialFunc is not  None :
+
+            print self.X['test'].shape, self.Y['test'].shape
+
+        else:
+            print("No adversarial attacks specified")
+
         return devaccuracy, testaccuracy

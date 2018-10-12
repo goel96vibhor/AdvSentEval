@@ -24,7 +24,7 @@ from senteval.rank import ImageCaptionRetrievalEval
 from senteval.probing import *
 
 class SE(object):
-    def __init__(self, params, batcher, prepare=None):
+    def __init__(self, params, batcher, prepare=None, adversarialFunc=None):
         # parameters
         params = utils.dotdict(params)
         params.usepytorch = True if 'usepytorch' not in params else params.usepytorch
@@ -39,6 +39,7 @@ class SE(object):
 
         assert 'nhid' in params.classifier, 'Set number of hidden units in classifier config!!'
 
+        params.adversarialFunc = adversarialFunc  # if adversarialFunc else lambda x,y : None
         self.params = params
 
         # batcher and prepare

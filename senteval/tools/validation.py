@@ -200,6 +200,14 @@ class SplitClassifier(object):
         self.config = config
 
     def run(self):
+
+        # if self.config['adversarial_sample_generator'] is not  None :
+        #     adv_embed_x, adv_embed_y = self.config['adversarial_sample_generator'](self.X['test'], self.y['test'])
+        # else:
+        #     print("No adversarial attacks specified")
+
+
+
         logging.info('Training {0} with standard validation..'
                      .format(self.modelname))
         regs = [10**t for t in range(-5, -1)] if self.usepytorch else \
@@ -241,17 +249,60 @@ class SplitClassifier(object):
             clf = LogisticRegression(C=optreg, random_state=self.seed)
             clf.fit(self.X['train'], self.y['train'])
 
+        orig_test_x = self.X['test']
+        orig_test_y = self.y['test']
+
         testaccuracy = clf.score(self.X['test'], self.y['test'])
         testaccuracy = round(100*testaccuracy, 2)
-        print('devacc: ' + devaccuracy+ ' acc: ' + testaccuracy +
-                ' ndev: ' + len(self.X['train']) +
-                ' ntest: ' + len(self.X['test']))
+        print('devacc: ' + str(devaccuracy) + ' acc: ' + str(testaccuracy) +
+                ' ndev: ' + str(len(self.X['train'])) +
+                ' ntest: ' + str(len(self.X['test'])))
 
-        if self.classifier_config.adversarialFunc is not  None :
+        total_adversaries = []
+        uneq_adversaries = []
+        wrong_adversaries = []
+        adv_results = dict()
+        orig_predictions = []
+        if self.config['adversarial_sample_generator'] is not  None :
+            adv_embed_x, adv_embed_y = self.config['adversarial_sample_generator'](self.X['test'], self.y['test'])
+            adv_preds = []
+            for i in range(len(adv_embed_x)):
+                orig_pred = clf.predict(self.X['test'][i].reshape(1, -1))
+                orig_predictions.append(orig_pred)
+                sample_preds = clf.predict(adv_embed_x[i])
+                adv_preds.append(sample_preds)
+                wrong_count =0
+                change_count = 0
+                for sample_pred, actual_y in zip(sample_preds, adv_embed_y[i]):
+                    if sample_pred !=actual_y:
+                        wrong_count+= 1
+                    if sample_pred !=orig_pred:
+                        change_count+=1
+                uneq_adversaries.append(change_count)
+                wrong_adversaries.append(wrong_count)
+                total_adversaries.append(len(sample_preds))
+                # print sample_preds, adv_embed_y[i]
+                if i % 100 == 0:
+                    print i, " sentences evaluated"
 
-            print self.X['test'].shape, self.Y['test'].shape
+            print "non equal count:", np.count_nonzero(uneq_adversaries)
+            print "non equal count:", np.count_nonzero(wrong_adversaries)
+            # print uneq_adversaries[:-10], total_adversaries[:-10]
+            print "adversaries size:", np.sum(total_adversaries)
 
+            adv_results['total_adversaries'] = total_adversaries
+            adv_results['wrong_adversaries'] = wrong_adversaries
+            adv_results['uneq_adversaries'] = uneq_adversaries
+            adv_results['model'] = clf
+            adv_results['test_x'] = self.X['test']
+            adv_results['test_y'] = self.y['test']
+            adv_results['adv_test_x'] = adv_embed_x
+            adv_results['adv_test_y'] = adv_embed_y
+            adv_results['adv_preds'] = adv_preds
+            adv_results['orig_predictions'] = orig_predictions
         else:
             print("No adversarial attacks specified")
 
-        return devaccuracy, testaccuracy
+
+
+        return devaccuracy, testaccuracy, adv_results

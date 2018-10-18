@@ -23,6 +23,9 @@ PATH_TO_VEC = 'fasttext/crawl-300d-2M.vec'
 sys.path.insert(0, PATH_TO_SENTEVAL)
 import senteval
 
+sys.path.insert(1,PATH_TO_SENTEVAL)
+from AdversarialModels import WordNetSynonym
+
 
 # Create dictionary
 def create_dictionary(sentences, threshold=0):
@@ -91,8 +94,40 @@ def batcher(params, batch):
     embeddings = np.vstack(embeddings)
     return embeddings
 
+def adversarialFunc(params, sent, y_label, sentvec = None):
+    # sentvec = np.multiply(sentvec, params.wvec_dim)
+    modified_vecs = []
+    if sentvec is None:
+        return np.zeros(params.wvec_dim), np.array(y_label)
+    # print sent
+    # print sentvec ,"\n"
+    for word in sent:
+        # print "new word ", word, "-" *80
+        new_sentvec = np.array(sentvec)
+        if word in params.word_vec:
+            # print word, "-" * 30
+            # print params.word_vec[word][:20]
+            new_sentvec = np.subtract(sentvec, np.true_divide(params.word_vec[word],len(sent)))
+            # print "new sent vec ", "-" * 30
+            # print new_sentvec[:20]
+            word_syns = WordNetSynonym.get_word_synonym(word)
+            # print word_syns
+            for syn in word_syns:
+                if syn in params.word_vec:
+                    # print syn, "-"*30
+                    # print params.word_vec[syn][:20]
+                    modified_vecs.append(np.add(new_sentvec, np.true_divide(params.word_vec[syn], len(sent))))
+                    # print "mod sent vec", "-" * 30
+                    # print modified_vecs[len(modified_vecs)-1][:20], "\n"
+
+    # print "modifies vecs size:", len(modified_vecs)
+    repeated_labels = np.full(len(modified_vecs),y_label)
+    # print " lable size:", repeated_labels.size
+    return modified_vecs, repeated_labels
 
 # Set params for SentEval
+np.set_printoptions(suppress=True)
+np.set_printoptions(precision=4)
 params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': False, 'kfold': 5}
 params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 128,
                                  'tenacity': 3, 'epoch_size': 2, 'cudaEfficient' : True}
@@ -101,7 +136,7 @@ params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 12
 logging.basicConfig(format='%(asctime)s : %(message)s', level=logging.DEBUG)
 
 if __name__ == "__main__":
-    se = senteval.engine.SE(params_senteval, batcher, prepare)
+    se = senteval.engine.SE(params_senteval, batcher, prepare, adversarialFunc=adversarialFunc)
     # transfer_tasks = ['STS12', 'STS13', 'STS14', 'STS15', 'STS16',
     #                   'MR', 'CR', 'MPQA', 'SUBJ', 'SST2', 'SST5', 'TREC', 'MRPC',
     #                   'SICKEntailment', 'SICKRelatedness', 'STSBenchmark',
@@ -110,4 +145,4 @@ if __name__ == "__main__":
     #                   'OddManOut', 'CoordinationInversion']
     transfer_tasks = ['SST2']
     results = se.eval(transfer_tasks)
-    print(results)
+    # print(results['task_results'])

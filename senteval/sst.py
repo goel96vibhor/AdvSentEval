@@ -20,6 +20,8 @@ from senteval.tools.validation import SplitClassifier
 
 
 class SSTEval(object):
+
+
     def __init__(self, task_path, nclasses=2, seed=1111):
         self.seed = seed
 
@@ -54,13 +56,26 @@ class SSTEval(object):
         assert max(sst_data['y']) == self.nclasses - 1
         return sst_data
 
-    def generateAdvSamples(self, params, adversarialFunc):
+    def generate_adv_samples(self, sst_embed_x, sst_embed_y):
+
+        adv_embed_x = []
+        adv_embed_y = []
+        for i in range(len(sst_embed_x)):
+            sample = self.sst_data['test']['X'][i]
+            modified_vecs, repeated_labels = self.adversarialFunc(self.params, sample, sst_embed_y[i], sst_embed_x[i])
+            adv_embed_x.append(modified_vecs)
+            adv_embed_y.append(repeated_labels)
+            if i%100 == 0:
+                print i, " sentences done"
+        print "adv_embed length:", len(adv_embed_x), " ", len(adv_embed_y)
+        return adv_embed_x, adv_embed_y
 
 
     def run(self, params, batcher):
         sst_embed = {'train': {}, 'dev': {}, 'test': {}}
         bsize = params.batch_size
-        adversarialFunc = params.adversarialFunc
+        self.params = params
+        self.adversarialFunc = params.adversarialFunc
         for key in self.sst_data:
             logging.info('Computing embedding for {0}'.format(key))
             # Sort to reduce padding
@@ -78,10 +93,21 @@ class SSTEval(object):
             sst_embed[key]['y'] = np.array(self.sst_data[key]['y'])
             logging.info('Computed {0} embeddings'.format(key))
 
+        # print "printing to check if wordvecs fored correct\n"
+        #
+        # for word in self.sst_data['test']['X'][0]:
+        #     print word, "-"*30
+        #     print params.word_vec[word][:20]
+        # print "sent embedding", "-"*30
+        # print sst_embed['test']['X'][0][:20]
+        # print "\n\n"
+
         config_classifier = {'nclasses': self.nclasses, 'seed': self.seed,
                              'usepytorch': params.usepytorch,
                              'classifier': params.classifier,
-                             'adversarialFunc': params.adversarialFunc}
+                             'adversarial_sample_generator': self.generate_adv_samples
+                                    if self.adversarialFunc is not None else None
+                            }
 
         clf = SplitClassifier(X={'train': sst_embed['train']['X'],
                                  'valid': sst_embed['dev']['X'],
@@ -91,10 +117,15 @@ class SSTEval(object):
                                  'test': sst_embed['test']['y']},
                               config=config_classifier)
 
-        devacc, testacc = clf.run()
+        devacc, testacc, adv_results = clf.run()
         logging.debug('\nDev acc : {0} Test acc : {1} for \
             SST {2} classification\n'.format(devacc, testacc, self.task_name))
 
-        return {'devacc': devacc, 'acc': testacc,
+        results = dict()
+        results['task_results'] = {'devacc': devacc, 'acc': testacc,
                 'ndev': len(sst_embed['dev']['X']),
                 'ntest': len(sst_embed['test']['X'])}
+
+        results['adv_results'] = adv_results
+        print "added adv results to pass back"
+        return results

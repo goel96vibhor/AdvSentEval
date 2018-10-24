@@ -210,49 +210,49 @@ class SplitClassifier(object):
         filename = 'finalized_model.sav'
         devaccuracy = 0
 
-        logging.info('Training {0} with standard validation..'
-                     .format(self.modelname))
-        regs = [10**t for t in range(-5, -1)] if self.usepytorch else \
-               [2**t for t in range(-2, 4, 1)]
-        if self.noreg:
-            regs = [1e-9 if self.usepytorch else 1e9]
-        scores = []
-        for reg in regs:
-            if self.usepytorch:
-                clf = MLP(self.classifier_config, inputdim=self.featdim,
-                          nclasses=self.nclasses, l2reg=reg,
-                          seed=self.seed, cudaEfficient=self.cudaEfficient)
-
-                # TODO: Find a hack for reducing nb epoches in SNLI
-                clf.fit(self.X['train'], self.y['train'],
-                        validation_data=(self.X['valid'], self.y['valid']))
-            else:
-                clf = LogisticRegression(C=reg, random_state=self.seed)
-                clf.fit(self.X['train'], self.y['train'])
-            scores.append(round(100*clf.score(self.X['valid'],
-                                self.y['valid']), 2))
-        logging.info([('reg:'+str(regs[idx]), scores[idx])
-                      for idx in range(len(scores))])
-        optreg = regs[np.argmax(scores)]
-        devaccuracy = np.max(scores)
-        logging.info('Validation : best param found is reg = {0} with score \
-            {1}'.format(optreg, devaccuracy))
-        clf = LogisticRegression(C=optreg, random_state=self.seed)
-        logging.info('Evaluating...')
-        if self.usepytorch:
-            clf = MLP(self.classifier_config, inputdim=self.featdim,
-                      nclasses=self.nclasses, l2reg=optreg,
-                      seed=self.seed, cudaEfficient=self.cudaEfficient)
-
-            # TODO: Find a hack for reducing nb epoches in SNLI
-            clf.fit(self.X['train'], self.y['train'],
-                    validation_data=(self.X['valid'], self.y['valid']))
-        else:
-            clf = LogisticRegression(C=optreg, random_state=self.seed)
-            clf.fit(self.X['train'], self.y['train'])
-
-
-        pickle.dump(clf, open(filename, 'wb'))
+        # logging.info('Training {0} with standard validation..'
+        #              .format(self.modelname))
+        # regs = [10**t for t in range(-5, -1)] if self.usepytorch else \
+        #        [2**t for t in range(-2, 4, 1)]
+        # if self.noreg:
+        #     regs = [1e-9 if self.usepytorch else 1e9]
+        # scores = []
+        # for reg in regs:
+        #     if self.usepytorch:
+        #         clf = MLP(self.classifier_config, inputdim=self.featdim,
+        #                   nclasses=self.nclasses, l2reg=reg,
+        #                   seed=self.seed, cudaEfficient=self.cudaEfficient)
+        #
+        #         # TODO: Find a hack for reducing nb epoches in SNLI
+        #         clf.fit(self.X['train'], self.y['train'],
+        #                 validation_data=(self.X['valid'], self.y['valid']))
+        #     else:
+        #         clf = LogisticRegression(C=reg, random_state=self.seed)
+        #         clf.fit(self.X['train'], self.y['train'])
+        #     scores.append(round(100*clf.score(self.X['valid'],
+        #                         self.y['valid']), 2))
+        # logging.info([('reg:'+str(regs[idx]), scores[idx])
+        #               for idx in range(len(scores))])
+        # optreg = regs[np.argmax(scores)]
+        # devaccuracy = np.max(scores)
+        # logging.info('Validation : best param found is reg = {0} with score \
+        #     {1}'.format(optreg, devaccuracy))
+        # clf = LogisticRegression(C=optreg, random_state=self.seed)
+        # logging.info('Evaluating...')
+        # if self.usepytorch:
+        #     clf = MLP(self.classifier_config, inputdim=self.featdim,
+        #               nclasses=self.nclasses, l2reg=optreg,
+        #               seed=self.seed, cudaEfficient=self.cudaEfficient)
+        #
+        #     # TODO: Find a hack for reducing nb epoches in SNLI
+        #     clf.fit(self.X['train'], self.y['train'],
+        #             validation_data=(self.X['valid'], self.y['valid']))
+        # else:
+        #     clf = LogisticRegression(C=optreg, random_state=self.seed)
+        #     clf.fit(self.X['train'], self.y['train'])
+        #
+        #
+        # pickle.dump(clf, open(filename, 'wb'))
         orig_test_x = self.X['test']
         orig_test_y = self.y['test']
 

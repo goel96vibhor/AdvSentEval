@@ -19,6 +19,7 @@ import numpy as np
 from senteval.tools.classifier import MLP
 
 import sklearn
+import pickle
 assert(sklearn.__version__ >= "0.18.0"), \
     "need to update sklearn to version >= 0.18.0"
 from sklearn.linear_model import LogisticRegression
@@ -206,7 +207,8 @@ class SplitClassifier(object):
         # else:
         #     print("No adversarial attacks specified")
 
-
+        filename = 'finalized_model.sav'
+        devaccuracy = 0
 
         logging.info('Training {0} with standard validation..'
                      .format(self.modelname))
@@ -249,8 +251,12 @@ class SplitClassifier(object):
             clf = LogisticRegression(C=optreg, random_state=self.seed)
             clf.fit(self.X['train'], self.y['train'])
 
+
+        pickle.dump(clf, open(filename, 'wb'))
         orig_test_x = self.X['test']
         orig_test_y = self.y['test']
+
+        clf = pickle.load(open(filename, 'rb'))
 
         testaccuracy = clf.score(self.X['test'], self.y['test'])
         testaccuracy = round(100*testaccuracy, 2)

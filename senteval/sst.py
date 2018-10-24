@@ -66,8 +66,8 @@ class SSTEval(object):
             adv_embed_x.append(modified_vecs)
             adv_embed_y.append(repeated_labels)
             if i%100 == 0:
-                print i, " sentences done"
-        print "adv_embed length:", len(adv_embed_x), " ", len(adv_embed_y)
+                print("%d sentences done"%(i))
+        print("adv_embed length:%d %d"%(len(adv_embed_x), len(adv_embed_y)))
         return adv_embed_x, adv_embed_y
 
 
@@ -127,5 +127,5 @@ class SSTEval(object):
                 'ntest': len(sst_embed['test']['X'])}
 
         results['adv_results'] = adv_results
-        print "added adv results to pass back"
+        print("added adv results to pass back")
         return results

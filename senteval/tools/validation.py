@@ -283,12 +283,12 @@ class SplitClassifier(object):
                 total_adversaries.append(len(sample_preds))
                 # print sample_preds, adv_embed_y[i]
                 if i % 100 == 0:
-                    print i, " sentences evaluated"
+                    print("%d sentences evaluated"%i)
 
-            print "non equal count:", np.count_nonzero(uneq_adversaries)
-            print "non equal count:", np.count_nonzero(wrong_adversaries)
+            print("non equal count:%d"%(np.count_nonzero(uneq_adversaries)))
+            print("non equal count:%d"%(np.count_nonzero(wrong_adversaries)))
             # print uneq_adversaries[:-10], total_adversaries[:-10]
-            print "adversaries size:", np.sum(total_adversaries)
+            print("adversaries size:%d" %(np.sum(total_adversaries)))
 
             adv_results['total_adversaries'] = total_adversaries
             adv_results['wrong_adversaries'] = wrong_adversaries

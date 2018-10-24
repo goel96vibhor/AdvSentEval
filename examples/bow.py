@@ -103,22 +103,31 @@ def adversarialFunc(params, sent, y_label, sentvec = None):
     # print sentvec ,"\n"
     for word in sent:
         # print "new word ", word, "-" *80
-        new_sentvec = np.array(sentvec)
+
         if word in params.word_vec:
-            # print word, "-" * 30
-            # print params.word_vec[word][:20]
-            new_sentvec = np.subtract(sentvec, np.true_divide(params.word_vec[word],len(sent)))
-            # print "new sent vec ", "-" * 30
-            # print new_sentvec[:20]
             word_syns = WordNetSynonym.get_word_synonym(word)
-            # print word_syns
-            for syn in word_syns:
-                if syn in params.word_vec:
-                    # print syn, "-"*30
-                    # print params.word_vec[syn][:20]
-                    modified_vecs.append(np.add(new_sentvec, np.true_divide(params.word_vec[syn], len(sent))))
-                    # print "mod sent vec", "-" * 30
-                    # print modified_vecs[len(modified_vecs)-1][:20], "\n"
+            for word2 in sent:
+                if word2 == word:
+                    continue
+                new_sentvec = np.array(sentvec)
+                if word2 in params.word_vec:
+                    # print word, "-" * 30
+                    # print params.word_vec[word][:20]
+                    new_sentvec = np.subtract(sentvec, np.true_divide(params.word_vec[word],len(sent)))
+                    new_sentvec = np.subtract(new_sentvec, np.true_divide(params.word_vec[word2], len(sent)))
+                    # print "new sent vec ", "-" * 30
+                    # print new_sentvec[:20]
+                    word2_syns = WordNetSynonym.get_word_synonym(word)
+                    # print word_syns
+                    for syn in word_syns:
+                        for syn2 in word2_syns:
+                            if syn in params.word_vec and syn2 in params.word_vec:
+                                # print syn, "-"*30
+                                # print params.word_vec[syn][:20]
+                                syn_sum_vec = np.add(params.word_vec[syn], params.word_vec[syn2])
+                                modified_vecs.append(np.add(new_sentvec, np.true_divide(syn_sum_vec, len(sent))))
+                                # print "mod sent vec", "-" * 30
+                                # print modified_vecs[len(modified_vecs)-1][:20], "\n"
 
     # print "modifies vecs size:", len(modified_vecs)
     repeated_labels = np.full(len(modified_vecs),y_label)

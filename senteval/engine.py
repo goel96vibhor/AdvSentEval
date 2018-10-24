@@ -41,7 +41,7 @@ class SE(object):
 
         params.adversarialFunc = adversarialFunc  # if adversarialFunc else lambda x,y : None
         self.params = params
-        print "running new eval"
+        print("running new eval")
         # batcher and prepare
         self.batcher = batcher
         self.prepare = prepare if prepare else lambda x, y: None
@@ -55,7 +55,7 @@ class SE(object):
                            'OddManOut', 'CoordinationInversion']
 
     def eval(self, name):
-        print "running new eval"
+        print("running new eval")
         # evaluate on evaluation [name], either takes string or list of strings
         if (isinstance(name, list)):
             self.results = {x: self.eval(x) for x in name}

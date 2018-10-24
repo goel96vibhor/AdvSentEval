@@ -153,7 +153,7 @@ if __name__ == "__main__":
     uneq_df_filename = 'uneq_file.csv'
     total_df_filename = 'total_file.csv'
     wrong_df_filename = 'wrong_file.csv'
-    uneq_df.to_csv(uneq_df_filename, sep='\t', encoding='utf-8')
-    total_df.to_csv(total_df_filename, sep='\t', encoding='utf-8')
-    wrong_df.to_csv(wrong_df_filename, sep='\t', encoding='utf-8')
+    uneq_df.to_csv(uneq_df_filename)
+    total_df.to_csv(total_df_filename)
+    wrong_df.to_csv(wrong_df_filename)
     # print(results['task_results'])

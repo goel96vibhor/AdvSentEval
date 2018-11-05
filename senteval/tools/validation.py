@@ -291,7 +291,7 @@ class SplitClassifier(object):
                     print("new embeddings", adv_embed_x[i][0])
 
 
-                if sample_preds[0] != orig_pred:
+                if sample_preds[0] != sample_preds[1]:
                     change_due_to_randomness += 1
                     print("predictions are not equal for the sentence %d"%(i))
                 # orig_pred = sample_preds[0]
@@ -299,14 +299,14 @@ class SplitClassifier(object):
                 equal = True
                 no_of_dim_diff = 0
                 for j in range(len(adv_embed_x[i][0])):
-                    if abs(adv_embed_x[i][0][j] - self.X['test'][i][j]) >= allowed_error:
+                    if abs(adv_embed_x[i][0][j] - adv_embed_x[i][1][j]) >= allowed_error:
                         equal = False
                         no_of_dim_diff += 1
 
-                # if equal == False:
-                #     print("\nembeddings are not equal for the sentence %d, no of dims different %d" % (i, no_of_dim_diff))
-                #     print("orig embeddings", self.X['test'][i])
-                #     print("new embeddings\n", adv_embed_x[i][0])
+                if equal == False:
+                    print("\nembeddings are not equal for the sentence %d, no of dims different %d" % (i, no_of_dim_diff))
+                    print("orig embeddings", self.X['test'][i])
+                    print("new embeddings\n", adv_embed_x[i][0])
 
                 for sample_pred, actual_y in zip(sample_preds, adv_embed_y[i]):
                     if sample_pred !=actual_y:

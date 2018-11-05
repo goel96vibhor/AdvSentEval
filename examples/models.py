@@ -251,6 +251,11 @@ class InferSent(nn.Module):
             new_sent = list(sent)
             sent_adversaries.append(new_sent)
             sent_adv_labels.append(label)
+
+            new_sent = list(sent)
+            sent_adversaries.append(new_sent)
+            sent_adv_labels.append(label)
+
             if sent == sentences[43]:
                 print("orig sent vec", sent)
                 print("mod sent vec", new_sent)

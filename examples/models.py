@@ -49,9 +49,9 @@ class InferSent(nn.Module):
             self.moses_tok = True
 
     def is_cuda(self):
-         return False
+         # return False
         # either all weights are on cpu or they are on gpu
-        #return self.enc_lstm.bias_hh_l0.data.is_cuda
+        return self.enc_lstm.bias_hh_l0.data.is_cuda
 
     def forward(self, sent_tuple):
         # sent_len: [max_len, ..., min_len] (bsize)

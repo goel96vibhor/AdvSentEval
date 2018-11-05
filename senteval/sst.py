@@ -69,11 +69,15 @@ class SSTEval(object):
 
         adv_embed_x = []
         adv_embed_y = []
-        for stidx in range(0, len(self.sst_data['test']['X']), self.params.batch_size):
-            batch = self.sst_data['test']['X'][stidx:stidx + self.params.batch_size]
-            batch_labels = sst_embed_y[stidx:stidx + self.params.batch_size]
-            batch_embeds = sst_embed_x[stidx:stidx + self.params.batch_size]
+        # adv_batch_size = self.params.batch_size
+        adv_batch_size = len(self.sst_data['test']['X'])
+        for stidx in range(0, len(self.sst_data['test']['X']), adv_batch_size):
 
+            batch = self.sst_data['test']['X'][stidx:stidx + adv_batch_size]
+            batch_labels = sst_embed_y[stidx:stidx + adv_batch_size]
+            batch_embeds = sst_embed_x[stidx:stidx + adv_batch_size]
+
+            print("Computing adversarial samples for batch: %d no of sentences %d" %(stidx/adv_batch_size, len(batch) ))
 
             modified_vecs, repeated_labels = self.adversarialFunc(self.params, batch, batch_labels, batch_embeds)
 

@@ -53,6 +53,7 @@ def batcher(params, batch):
 def adversarialFunc(params, batch_sentences, batch_labels, embeddings = None):
     # sentvec = np.multiply(sentvec, params.wvec_dim)
 
+
     adv_batch_sentences, adv_labels = params.infersent.prepare_adversarial_samples(batch_sentences, batch_labels)
 
     print("adv samples size %d",len(adv_batch_sentences))
@@ -61,12 +62,14 @@ def adversarialFunc(params, batch_sentences, batch_labels, embeddings = None):
     print("sum of sentences called %d", total_count)
 
     adv_embeddings = []
-    for sent_adversaries in adv_batch_sentences:
+    for sent_adversaries, i in zip(adv_batch_sentences, range(len(adv_batch_sentences))):
 
         sentences = [' '.join(s) for s in sent_adversaries]
         sent_adv_embeddings = params.infersent.encode(sentences, bsize=params.batch_size, tokenize=False)
         adv_embeddings.append(sent_adv_embeddings)
 
+        if i%10 == 0:
+            print("%d sentences done"%(i))
 
 
     print("Adv embeddings shape: %s, adv_labels shape",dim(adv_embeddings),dim(adv_labels))
@@ -92,8 +95,8 @@ if __name__ == "__main__":
     model.load_state_dict(torch.load(MODEL_PATH))
     model.set_w2v_path(PATH_TO_W2V)
 
-    params_senteval['infersent'] = model
-    #params_senteval['infersent'] = model.cuda()
+    # params_senteval['infersent'] = model
+    params_senteval['infersent'] = model.cuda()
     se = senteval.engine.SE(params_senteval, batcher, prepare, adversarialFunc=adversarialFunc)
     transfer_tasks = ['SST2']
     results = se.eval(transfer_tasks)

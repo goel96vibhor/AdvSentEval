@@ -86,7 +86,7 @@ Evaluation of trained model on Transfer Tasks (SentEval)
 """
 
 # define senteval params
-params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5, 'model_name': 'infersent','batch_size': 4, 'train': False}
+params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5, 'model_name': 'infersent','batch_size': 128, 'train': False}
 params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 128,
                                  'tenacity': 3, 'epoch_size': 2}
 # Set up logger
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     model = InferSent(params_model)
     model.load_state_dict(torch.load(MODEL_PATH))
     model.set_w2v_path(PATH_TO_W2V)
-
+    print("model created for infersent")
     # params_senteval['infersent'] = model
     params_senteval['infersent'] = model.cuda()
     se = senteval.engine.SE(params_senteval, batcher, prepare, adversarialFunc=adversarialFunc)

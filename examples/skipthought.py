@@ -12,22 +12,23 @@ Example of file for SkipThought in SentEval
 """
 import logging
 import sys
-sys.setdefaultencoding('utf8')
+# sys.setdefaultencoding('utf8')
 
 
 # Set PATHs
 PATH_TO_SENTEVAL = '../'
 PATH_TO_DATA = '../data/senteval_data/'
-PATH_TO_SKIPTHOUGHT = ''
+PATH_TO_SKIPTHOUGHT = '../skip-thoughts/'
 
 assert PATH_TO_SKIPTHOUGHT != '', 'Download skipthought and set correct PATH'
 
 # import skipthought and Senteval
 sys.path.insert(0, PATH_TO_SKIPTHOUGHT)
-import skipthoughts
+
 sys.path.insert(0, PATH_TO_SENTEVAL)
 import senteval
-
+import skipthoughts
+import training.tools
 
 def prepare(params, samples):
     return

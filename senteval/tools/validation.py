@@ -190,7 +190,8 @@ class SplitClassifier(object):
         self.X = X
         self.y = y
         self.nclasses = config['nclasses']
-        self.featdim = self.X['train'].shape[1]
+
+        self.featdim = self.X['test'].shape[1]
         self.seed = config['seed']
         self.usepytorch = config['usepytorch']
         self.classifier_config = config['classifier']
@@ -207,7 +208,7 @@ class SplitClassifier(object):
         # else:
         #     print("No adversarial attacks specified")
 
-        filename = 'finalized_model.sav'
+        filename = 'finalized_model_infersent_2.sav'
         devaccuracy = 0
 
         # logging.info('Training {0} with standard validation..'
@@ -253,9 +254,15 @@ class SplitClassifier(object):
         #
         #
         # pickle.dump(clf, open(filename, 'wb'))
+
+
         orig_test_x = self.X['test']
         orig_test_y = self.y['test']
-
+        total_adversaries = []
+        uneq_adversaries = []
+        wrong_adversaries = []
+        adv_results = dict()
+        orig_predictions = []
         clf = pickle.load(open(filename, 'rb'))
 
         testaccuracy = clf.score(self.X['test'], self.y['test'])
@@ -264,11 +271,6 @@ class SplitClassifier(object):
                 ' ndev: ' + str(len(self.X['train'])) +
                 ' ntest: ' + str(len(self.X['test'])))
 
-        total_adversaries = []
-        uneq_adversaries = []
-        wrong_adversaries = []
-        adv_results = dict()
-        orig_predictions = []
         if self.config['adversarial_sample_generator'] is not  None :
             adv_embed_x, adv_embed_y = self.config['adversarial_sample_generator'](self.X['test'], self.y['test'])
             adv_preds = []
@@ -281,6 +283,7 @@ class SplitClassifier(object):
                 change_count = 0
                 for sample_pred, actual_y in zip(sample_preds, adv_embed_y[i]):
                     if sample_pred !=actual_y:
+                        print("")
                         wrong_count+= 1
                     if sample_pred !=orig_pred:
                         change_count+=1

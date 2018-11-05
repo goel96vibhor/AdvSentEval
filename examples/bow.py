@@ -95,34 +95,39 @@ def batcher(params, batch):
     embeddings = np.vstack(embeddings)
     return embeddings
 
-def adversarialFunc(params, sent, y_label, sentvec = None):
+def adversarialFunc(params, batch_sentences, batch_labels, embeddings):
     # sentvec = np.multiply(sentvec, params.wvec_dim)
     modified_vecs = []
-    if sentvec is None:
-        return np.zeros(params.wvec_dim), np.array(y_label)
-    # print sent
-    # print sentvec ,"\n"
-    for word in sent:
-        # print "new word ", word, "-" *80
-        new_sentvec = np.array(sentvec)
-        if word in params.word_vec:
-            # print word, "-" * 30
-            # print params.word_vec[word][:20]
-            new_sentvec = np.subtract(sentvec, np.true_divide(params.word_vec[word],len(sent)))
-            # print "new sent vec ", "-" * 30
-            # print new_sentvec[:20]
-            word_syns = WordNetSynonym.get_word_synonym(word)
-            # print word_syns
-            for syn in word_syns:
-                if syn in params.word_vec:
-                    # print syn, "-"*30
-                    # print params.word_vec[syn][:20]
-                    modified_vecs.append(np.add(new_sentvec, np.true_divide(params.word_vec[syn], len(sent))))
-                    # print "mod sent vec", "-" * 30
-                    # print modified_vecs[len(modified_vecs)-1][:20], "\n"
+    repeated_labels = []
+    for sent, i in zip(batch_sentences, range(len(batch_sentences))):
+        sentvec = embeddings[i]
+        y_label = batch_labels[i]
+        if sentvec is None:
+            return np.zeros(params.wvec_dim), np.array(y_label)
+        # print sent
+        # print sentvec ,"\n"
+        for word in sent:
+            # print "new word ", word, "-" *80
+            new_sentvec = np.array(sentvec)
+            if word in params.word_vec:
+                # print word, "-" * 30
+                # print params.word_vec[word][:20]
+                new_sentvec = np.subtract(sentvec, np.true_divide(params.word_vec[word], len(sent)))
+                # print "new sent vec ", "-" * 30
+                # print new_sentvec[:20]
+                word_syns = WordNetSynonym.get_word_synonym(word)
+                # print word_syns
+                for syn in word_syns:
+                    if syn in params.word_vec:
+                        # print syn, "-"*30
+                        # print params.word_vec[syn][:20]
+                        modified_vecs.append(np.add(new_sentvec, np.true_divide(params.word_vec[syn], len(sent))))
+                        repeated_labels.append(y_label)
+                        # print "mod sent vec", "-" * 30
+                        # print modified_vecs[len(modified_vecs)-1][:20], "\n"
 
     # print "modifies vecs size:", len(modified_vecs)
-    repeated_labels = np.full(len(modified_vecs),y_label)
+    repeated_labels = np.array(repeated_labels)
     # print " lable size:", repeated_labels.size
     return modified_vecs, repeated_labels
 

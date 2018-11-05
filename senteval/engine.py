@@ -22,6 +22,7 @@ from senteval.sts import STS12Eval, STS13Eval, STS14Eval, STS15Eval, STS16Eval, 
 from senteval.sst import SSTEval
 from senteval.rank import ImageCaptionRetrievalEval
 from senteval.probing import *
+from datetime import datetime
 
 class SE(object):
     def __init__(self, params, batcher, prepare=None, adversarialFunc=None):
@@ -33,7 +34,8 @@ class SE(object):
         params.batch_size = 128 if 'batch_size' not in params else params.batch_size
         params.nhid = 0 if 'nhid' not in params else params.nhid
         params.kfold = 5 if 'kfold' not in params else params.kfold
-
+        params.model_name = params.model_name if params.model_name else str(datetime.now())
+        params.train = True if 'train' not in params else params.train
         if 'classifier' not in params or not params['classifier']:
             params.classifier = {'nhid': 0}
 

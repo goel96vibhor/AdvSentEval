@@ -248,6 +248,12 @@ class InferSent(nn.Module):
         for sent, label in zip(sentences, y_labels):
             sent_adversaries = []
             sent_adv_labels = []
+            new_sent = list(sent)
+            sent_adversaries.append(new_sent)
+            sent_adv_labels.append(label)
+            if sent == sentences[43]:
+                print("orig sent vec", sent)
+                print("mod sent vec", new_sent)
             for word, word_pos in zip(sent, range(len(sent))):
                 # print "new word ", word, "-" *80
                 if word in self.word_vec:
@@ -257,8 +263,7 @@ class InferSent(nn.Module):
                     # print "new sent vec ", "-" * 30
                     # print new_sentvec[:20]
                     word_syns = WordNetSynonym.get_word_synonym(word)
-                    # new_sentences.append(new_sent)
-                    # new_labels.append(label)
+
                     # print word_syns
                     for syn in word_syns:
                         if syn in self.word_vec:
@@ -273,7 +278,8 @@ class InferSent(nn.Module):
                             sent_adversaries.append(new_sent)
                             sent_adv_labels.append(label)
 
-                            if sent == sentences[0]:
+                            if sent == sentences[43]:
+                                # print("orig sent vec", sent)
                                 print("mod sent vec", new_sent)
 
                             # print "mod sent vec", "-" * 30

@@ -271,6 +271,8 @@ class SplitClassifier(object):
                 ' ndev: ' + str(len(self.X['train'])) +
                 ' ntest: ' + str(len(self.X['test'])))
 
+        allowed_error = 0.00001
+        change_due_to_randomness = 0
         if self.config['adversarial_sample_generator'] is not  None :
             adv_embed_x, adv_embed_y = self.config['adversarial_sample_generator'](self.X['test'], self.y['test'])
             adv_preds = []
@@ -281,12 +283,39 @@ class SplitClassifier(object):
                 adv_preds.append(sample_preds)
                 wrong_count =0
                 change_count = 0
+
+                if i == 10:
+                    print("orig predcitions", adv_embed_y[i])
+                    print("new predictions", sample_preds)
+                    print("orig embeddings", self.X['test'][i])
+                    print("new embeddings", adv_embed_x[i][0])
+
+
+                if sample_preds[0] != orig_pred:
+                    change_due_to_randomness += 1
+                    print("predictions are not equal for the sentence %d"%(i))
+                # orig_pred = sample_preds[0]
+
+                equal = True
+                no_of_dim_diff = 0
+                for j in range(len(adv_embed_x[i][0])):
+                    if abs(adv_embed_x[i][0][j] - self.X['test'][i][j]) >= allowed_error:
+                        equal = False
+                        no_of_dim_diff += 1
+
+                # if equal == False:
+                #     print("\nembeddings are not equal for the sentence %d, no of dims different %d" % (i, no_of_dim_diff))
+                #     print("orig embeddings", self.X['test'][i])
+                #     print("new embeddings\n", adv_embed_x[i][0])
+
                 for sample_pred, actual_y in zip(sample_preds, adv_embed_y[i]):
                     if sample_pred !=actual_y:
-                        print("")
+                        # print("")
                         wrong_count+= 1
                     if sample_pred !=orig_pred:
                         change_count+=1
+
+
                 uneq_adversaries.append(change_count)
                 wrong_adversaries.append(wrong_count)
                 total_adversaries.append(len(sample_preds))
@@ -294,8 +323,10 @@ class SplitClassifier(object):
                 if i % 100 == 0:
                     print("%d sentences evaluated"%i)
 
+            print("change due to randomness count:%d" % (change_due_to_randomness))
             print("non equal count:%d"%(np.count_nonzero(uneq_adversaries)))
-            print("non equal count:%d"%(np.count_nonzero(wrong_adversaries)))
+            print("wrong count:%d"%(np.count_nonzero(wrong_adversaries)))
+            print("total count:%d" % (len(adv_embed_x)))
             # print uneq_adversaries[:-10], total_adversaries[:-10]
             print("adversaries size:%d" %(np.sum(total_adversaries)))
 

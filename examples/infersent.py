@@ -59,20 +59,25 @@ def adversarialFunc(params, batch_sentences, batch_labels, embeddings = None):
     print("adv samples size %d",len(adv_batch_sentences))
 
     total_count = sum(len(x) for x in adv_batch_sentences)
-    print("sum of sentences called %d", total_count)
+    print("sum of sentences called %d, batch_size %d" %(total_count, params.batch_size))
 
     adv_embeddings = []
+
     for sent_adversaries, i in zip(adv_batch_sentences, range(len(adv_batch_sentences))):
 
         sentences = [' '.join(s) for s in sent_adversaries]
+
         sent_adv_embeddings = params.infersent.encode(sentences, bsize=params.batch_size, tokenize=False)
         adv_embeddings.append(sent_adv_embeddings)
 
         if i%10 == 0:
             print("%d sentences done"%(i))
-
+            # print("Adv embeddings shape: %s, adv_labels shape", len(sent_adv_embeddings), dim(adv_labels[i]))
 
     print("Adv embeddings shape: %s, adv_labels shape",dim(adv_embeddings),dim(adv_labels))
+
+    for i in range(0,len(adv_embeddings),10):
+        print("Adv embeddings shape: %s, adv_labels shape", len(adv_embeddings[i]), len(adv_labels[i]))
     return adv_embeddings, adv_labels
 
 
@@ -81,7 +86,7 @@ Evaluation of trained model on Transfer Tasks (SentEval)
 """
 
 # define senteval params
-params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5, 'model_name': 'infersent', 'train': False}
+params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5, 'model_name': 'infersent','batch_size': 8, 'train': False}
 params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 128,
                                  'tenacity': 3, 'epoch_size': 2}
 # Set up logger
@@ -100,4 +105,4 @@ if __name__ == "__main__":
     se = senteval.engine.SE(params_senteval, batcher, prepare, adversarialFunc=adversarialFunc)
     transfer_tasks = ['SST2']
     results = se.eval(transfer_tasks)
-    print(results)
+    # print(results)

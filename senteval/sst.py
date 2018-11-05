@@ -17,7 +17,10 @@ import logging
 import numpy as np
 
 from senteval.tools.validation import SplitClassifier
-import pickle
+try:
+    import pickle as pickle
+except ImportError:
+    import cPickle as pickle
 
 class SSTEval(object):
 
@@ -88,10 +91,10 @@ class SSTEval(object):
             sst_embed = {'dev': {}, 'test': {}}
         else:
             sst_embed = {'train': {}, 'dev': {}, 'test': {}}
-        test_file_x = 'testx_' + params.model_name + ".csv"
-        test_file_y = 'testy_' + params.model_name + ".csv"
-        dev_file_x = 'devx_' + params.model_name + ".csv"
-        dev_file_y = 'devy_' + params.model_name + ".csv"
+        test_file_x = 'testx_' + params.model_name + "_2.csv"
+        test_file_y = 'testy_' + params.model_name + "_2.csv"
+        dev_file_x = 'devx_' + params.model_name + "_2.csv"
+        dev_file_y = 'devy_' + params.model_name + "_2.csv"
         bsize = params.batch_size
         self.params = params
         self.adversarialFunc = params.adversarialFunc

@@ -253,7 +253,7 @@ class InferSent(nn.Module):
                 if word in self.word_vec:
                     # print word, "-" * 30
                     # print params.word_vec[word][:20]
-                    new_sent = sent.copy()
+                    new_sent = list(sent)
                     # print "new sent vec ", "-" * 30
                     # print new_sentvec[:20]
                     word_syns = WordNetSynonym.get_word_synonym(word)
@@ -268,7 +268,7 @@ class InferSent(nn.Module):
 
                             # print syn, "-"*30
                             # print params.word_vec[syn][:20]
-                            new_sent = sent.copy()
+                            new_sent = list(sent)
                             new_sent[word_pos] = syn
                             sent_adversaries.append(new_sent)
                             sent_adv_labels.append(label)

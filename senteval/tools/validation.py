@@ -309,9 +309,13 @@ class SplitClassifier(object):
                     print("new embeddings\n", adv_embed_x[i][0])
 
                 for sample_pred, actual_y in zip(sample_preds, adv_embed_y[i]):
-                    if sample_pred !=actual_y:
+                    if sample_pred !=sample_preds[0]:
                         # print("")
                         wrong_count+= 1
+
+                    # if i%10 == 0:
+                        
+
                     if sample_pred !=orig_pred:
                         change_count+=1
 

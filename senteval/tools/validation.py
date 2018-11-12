@@ -273,6 +273,7 @@ class SplitClassifier(object):
 
         allowed_error = 0.00001
         change_due_to_randomness = 0
+        wrong_first = 0
         if self.config['adversarial_sample_generator'] is not  None :
             adv_embed_x, adv_embed_y = self.config['adversarial_sample_generator'](self.X['test'], self.y['test'])
             adv_preds = []
@@ -295,6 +296,10 @@ class SplitClassifier(object):
                     change_due_to_randomness += 1
                     print("predictions are not equal for the sentence %d"%(i))
                 # orig_pred = sample_preds[0]
+
+                if sample_preds[0] != self.y['test'][i]:
+                    wrong_first += 1
+                    print("predictions are wrong for the sentence %d"%(i))
 
                 equal = True
                 no_of_dim_diff = 0
@@ -327,6 +332,7 @@ class SplitClassifier(object):
                 if i % 100 == 0:
                     print("%d sentences evaluated"%i)
 
+            print("wring first count:%d" % (wrong_first))
             print("change due to randomness count:%d" % (change_due_to_randomness))
             print("non equal count:%d"%(np.count_nonzero(uneq_adversaries)))
             print("wrong count:%d"%(np.count_nonzero(wrong_adversaries)))

@@ -186,7 +186,7 @@ class SplitClassifier(object):
     """
     (train, valid, test) split classifier.
     """
-    def __init__(self, X, y, config):
+    def __init__(self, X, y, config, test_dataX = None, test_dataY = None):
         self.X = X
         self.y = y
         self.nclasses = config['nclasses']
@@ -200,6 +200,8 @@ class SplitClassifier(object):
         self.modelname = get_classif_name(self.classifier_config, self.usepytorch)
         self.noreg = False if 'noreg' not in config else config['noreg']
         self.config = config
+        self.test_dataX = test_dataX if test_dataX is not None else None
+        self.test_dataY = test_dataY if test_dataY is not None else None
 
     def run(self):
 
@@ -275,7 +277,7 @@ class SplitClassifier(object):
         change_due_to_randomness = 0
         wrong_first = 0
         if self.config['adversarial_sample_generator'] is not  None :
-            adv_embed_x, adv_embed_y = self.config['adversarial_sample_generator'](self.X['test'], self.y['test'])
+            adv_embed_x, adv_embed_y, adv_sentences = self.config['adversarial_sample_generator'](self.X['test'], self.y['test'])
             adv_preds = []
             for i in range(len(adv_embed_x)):
                 orig_pred = clf.predict(self.X['test'][i].reshape(1, -1))
@@ -299,7 +301,7 @@ class SplitClassifier(object):
 
                 if sample_preds[0] != self.y['test'][i]:
                     wrong_first += 1
-                    print("predictions are wrong for the sentence %d"%(i))
+                    # print("predictions are wrong for the sentence %d"%(i))
 
                 equal = True
                 no_of_dim_diff = 0
@@ -313,10 +315,23 @@ class SplitClassifier(object):
                     print("orig embeddings", self.X['test'][i])
                     print("new embeddings\n", adv_embed_x[i][0])
 
-                for sample_pred, actual_y in zip(sample_preds, adv_embed_y[i]):
+                indexes_to_print = {4,12,15,17,18,26,36,45,48,52,56,59,63,67,69,72,76,79,83,88}
+
+                for sample_pred, ind in zip(sample_preds, range(len(sample_preds))):
+                    success_attack = False
+                    wrong_indexes = []
                     if sample_pred !=sample_preds[0]:
                         # print("")
                         wrong_count+= 1
+                        success_attack = True
+                        wrong_indexes.append(ind)
+                    if success_attack and self.test_dataX is not None and self.test_dataY is not None:
+                        if i not in indexes_to_print:
+                            continue
+                        print(adv_sentences[i][0], sample_preds[0])
+                        for wrong_index in wrong_indexes:
+                            print(adv_sentences[i][wrong_index], sample_preds[wrong_index])
+
 
                     # if i%10 == 0:
                         

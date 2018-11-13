@@ -76,6 +76,7 @@ class SSTEval(object):
 
         adv_embed_x = []
         adv_embed_y = []
+        adv_sentences = []
         # adv_batch_size = self.params.batch_size
 
         total_samples = len(sst_embed_x)
@@ -89,15 +90,16 @@ class SSTEval(object):
 
             print("Computing adversarial samples for batch: %d no of sentences %d" %(stidx/adv_batch_size, len(batch) ))
 
-            modified_vecs, repeated_labels = self.adversarialFunc(self.params, batch, batch_labels, batch_embeds)
+            modified_vecs, repeated_labels, adv_batch_sentences = self.adversarialFunc(self.params, batch, batch_labels, batch_embeds)
 
-            for sentence_adversaries, sentence_labels in zip(modified_vecs, repeated_labels):
-                adv_embed_x.append(sentence_adversaries)
+            for sentence_adversary_embeds, sentence_labels, sentence_adversaries in zip(modified_vecs, repeated_labels, adv_batch_sentences):
+                adv_embed_x.append(sentence_adversary_embeds)
                 adv_embed_y.append(sentence_labels)
+                adv_sentences.append(sentence_adversaries)
 
             print("%d sentences done"%(stidx))
         print("adv_embed length:%d %d"%(len(adv_embed_x), len(adv_embed_y)))
-        return adv_embed_x, adv_embed_y
+        return adv_embed_x, adv_embed_y, adv_sentences
 
 
     def run(self, params, batcher):
@@ -173,7 +175,7 @@ class SSTEval(object):
         #      'valid': sst_embed['dev']['y'],
         #      'test': sst_embed['test']['y']}
 
-        clf = SplitClassifier(X, y, config=config_classifier)
+        clf = SplitClassifier(X, y, config=config_classifier, test_dataX= self.sst_data['test']['X'], test_dataY= self.sst_data['test']['y'] )
 
         devacc, testacc, adv_results = clf.run()
         logging.debug('\nDev acc : {0} Test acc : {1} for \

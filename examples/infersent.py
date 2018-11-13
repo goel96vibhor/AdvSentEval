@@ -78,7 +78,7 @@ def adversarialFunc(params, batch_sentences, batch_labels, embeddings = None):
 
     for i in range(0,len(adv_embeddings),10):
         print("Adv embeddings shape: %s, adv_labels shape", len(adv_embeddings[i]), len(adv_labels[i]))
-    return adv_embeddings, adv_labels
+    return adv_embeddings, adv_labels, adv_batch_sentences
 
 
 """

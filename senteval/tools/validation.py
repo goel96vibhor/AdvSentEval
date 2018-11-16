@@ -419,9 +419,9 @@ class SplitClassifier(object):
                 ' ntest: ' + str(len(self.X['test'])))
 
         wrong_first = 0
-        test_preds = clf.predict(self.test['X'])
+        test_preds = clf.predict(self.X['test'])
         for test_pred, i in zip(test_preds, range(len(test_preds))):
-            if test_pred != self.test['y'][i]:
+            if test_pred != self.y['test'][i]:
                 wrong_first += 1
         print("test wrong cases:", wrong_first)
 

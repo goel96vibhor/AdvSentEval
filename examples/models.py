@@ -187,7 +187,7 @@ class InferSent(nn.Module):
         else:
             return word_tokenize(s)
 
-    def prepare_samples(self, sentences, bsize, tokenize, verbose):
+    def prepare_samples(self, sentences, bsize, tokenize, verbose, sort = True):
         sentences = [[self.bos] + s.split() + [self.eos] if not tokenize else
                      [self.bos] + self.tokenize(s) + [self.eos] for s in sentences]
         n_w = np.sum([len(x) for x in sentences])
@@ -209,8 +209,10 @@ class InferSent(nn.Module):
                         n_wk, n_w, 100.0 * n_wk / n_w, '%'))
 
         # sort by decreasing length
-        lengths, idx_sort = np.sort(lengths)[::-1], np.argsort(-lengths)
-        sentences = np.array(sentences)[idx_sort]
+        idx_sort = []
+        if sort:
+            lengths, idx_sort = np.sort(lengths)[::-1], np.argsort(-lengths)
+            sentences = np.array(sentences)[idx_sort]
 
         return sentences, lengths, idx_sort
 
@@ -242,7 +244,7 @@ class InferSent(nn.Module):
     def encode_without_shuffle(self, sentences, bsize=64, tokenize=True, verbose=False):
         tic = time.time()
         sentences, lengths, idx_sort = self.prepare_samples(
-                        sentences, bsize, tokenize, verbose)
+                        sentences, bsize, tokenize, verbose, sort=False)
 
         embeddings = []
         for stidx in range(0, len(sentences), bsize):
@@ -255,8 +257,8 @@ class InferSent(nn.Module):
         embeddings = np.vstack(embeddings)
 
         # unsort
-        idx_unsort = np.argsort(idx_sort)
-        embeddings = embeddings[idx_unsort]
+        # idx_unsort = np.argsort(idx_sort)
+        # embeddings = embeddings[idx_unsort]
 
         if verbose:
             print('Speed : %.1f sentences/s (%s mode, bsize=%s)' % (

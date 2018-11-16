@@ -67,7 +67,7 @@ def adversarialFunc(params, batch_sentences, batch_labels, embeddings = None):
 
         sentences = [' '.join(s) for s in sent_adversaries]
 
-        sent_adv_embeddings = params.infersent.encode(sentences, bsize=params.batch_size, tokenize=False)
+        sent_adv_embeddings = params.infersent.encode_without_shuffle(sentences, bsize=params.batch_size, tokenize=False)
         adv_embeddings.append(sent_adv_embeddings)
 
         if i%10 == 0:
@@ -86,7 +86,7 @@ Evaluation of trained model on Transfer Tasks (SentEval)
 """
 
 # define senteval params
-params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5, 'model_name': 'infersent','batch_size': 128, 'train': False}
+params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5, 'model_name': 'infersent','batch_size': 8, 'train': False}
 params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 128,
                                  'tenacity': 3, 'epoch_size': 2}
 # Set up logger
@@ -105,7 +105,7 @@ if __name__ == "__main__":
     # params_senteval['infersent'] = model
     params_senteval['infersent'] = model.cuda()
     se = senteval.engine.SE(params_senteval, batcher, prepare, adversarialFunc=adversarialFunc)
-    transfer_tasks = ['SST2']
-    # transfer_tasks = ['MRPC']
+    # transfer_tasks = ['SST2']
+    transfer_tasks = ['MRPC']
     results = se.eval(transfer_tasks)
     # print(results)

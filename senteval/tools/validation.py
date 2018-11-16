@@ -418,7 +418,12 @@ class SplitClassifier(object):
                 ' ndev: ' + str(len(self.X['train'])) +
                 ' ntest: ' + str(len(self.X['test'])))
 
-
+        wrong_first = 0
+        test_preds = clf.predict(self.test['X'])
+        for test_pred, i in zip(test_preds, range(len(test_preds))):
+            if test_pred != self.test['y'][i]:
+                wrong_first += 1
+        print("test wrong cases:", wrong_first)
 
 
         allowed_error = 0.00001
@@ -448,7 +453,7 @@ class SplitClassifier(object):
                     print("predictions are not equal for the sentence %d"%(i))
                 # orig_pred = sample_preds[0]
 
-                if sample_preds[0] != self.y['test'][i]:
+                if sample_preds[0] != adv_embed_y[i][0]:
                     wrong_first += 1
                     # print("predictions are wrong for the sentence %d"%(i))
 
@@ -470,7 +475,7 @@ class SplitClassifier(object):
                 for sample_pred, ind in zip(sample_preds, range(len(sample_preds))):
 
 
-                    if sample_pred !=self.y['test'][i]:
+                    if sample_pred !=adv_embed_y[i][0]:
                         # print("")
                         wrong_count+= 1
                     if sample_pred !=sample_preds[0]:

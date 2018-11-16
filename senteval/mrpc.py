@@ -59,8 +59,8 @@ class MRPCEval(object):
         adv_sentences = []
         # adv_batch_size = self.params.batch_size
 
-        total_samples = len(sst_embed_x)
-        # total_samples = 100
+        # total_samples = len(sst_embed_x)
+        total_samples = 100
         adv_batch_size = total_samples
         for stidx in range(0, total_samples, adv_batch_size):
 

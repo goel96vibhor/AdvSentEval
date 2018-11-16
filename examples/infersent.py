@@ -105,7 +105,7 @@ if __name__ == "__main__":
     # params_senteval['infersent'] = model
     params_senteval['infersent'] = model.cuda()
     se = senteval.engine.SE(params_senteval, batcher, prepare, adversarialFunc=adversarialFunc)
-    # transfer_tasks = ['SST2']
-    transfer_tasks = ['MRPC']
+    transfer_tasks = ['SST2']
+    # transfer_tasks = ['MRPC']
     results = se.eval(transfer_tasks)
     # print(results)

@@ -239,6 +239,30 @@ class InferSent(nn.Module):
                     'gpu' if self.is_cuda() else 'cpu', bsize))
         return embeddings
 
+    def encode_without_shuffle(self, sentences, bsize=64, tokenize=True, verbose=False):
+        tic = time.time()
+        sentences, lengths, idx_sort = self.prepare_samples(
+                        sentences, bsize, tokenize, verbose)
+
+        embeddings = []
+        for stidx in range(0, len(sentences), bsize):
+            batch = self.get_batch(sentences[stidx:stidx + bsize])
+            if self.is_cuda():
+                batch = batch.cuda()
+            with torch.no_grad():
+                batch = self.forward((batch, lengths[stidx:stidx + bsize])).data.cpu().numpy()
+            embeddings.append(batch)
+        embeddings = np.vstack(embeddings)
+
+        # unsort
+        idx_unsort = np.argsort(idx_sort)
+        embeddings = embeddings[idx_unsort]
+
+        if verbose:
+            print('Speed : %.1f sentences/s (%s mode, bsize=%s)' % (
+                    len(embeddings)/(time.time()-tic),
+                    'gpu' if self.is_cuda() else 'cpu', bsize))
+        return embeddings
 
     def prepare_adversarial_samples(self, sentences, y_labels):
 

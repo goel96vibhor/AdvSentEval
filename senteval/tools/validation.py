@@ -209,7 +209,7 @@ class KFoldClassifier(object):
         yhat = clf.predict(self.test['X'])
 
         wrong_first = 0
-        test_preds = clf.predict(self.test['X'][:100])
+        test_preds = clf.predict(self.test['X'])
         for test_pred, i in zip(test_preds, range(len(test_preds))):
             if test_pred != self.test['y'][i]:
                 wrong_first += 1

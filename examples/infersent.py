@@ -96,13 +96,16 @@ if __name__ == "__main__":
     # Load InferSent model
     params_model = {'bsize': 64, 'word_emb_dim': 300, 'enc_lstm_dim': 2048,
                     'pool_type': 'max', 'dpout_model': 0.0, 'version': V}
+
     model = InferSent(params_model)
+
     model.load_state_dict(torch.load(MODEL_PATH))
     model.set_w2v_path(PATH_TO_W2V)
     print("model created for infersent")
     # params_senteval['infersent'] = model
     params_senteval['infersent'] = model.cuda()
     se = senteval.engine.SE(params_senteval, batcher, prepare, adversarialFunc=adversarialFunc)
-    transfer_tasks = ['SST2']
+    # transfer_tasks = ['SST2']
+    transfer_tasks = ['MRPC']
     results = se.eval(transfer_tasks)
     # print(results)

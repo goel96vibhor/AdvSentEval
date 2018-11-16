@@ -99,14 +99,28 @@ def adversarialFunc(params, batch_sentences, batch_labels, embeddings):
     # sentvec = np.multiply(sentvec, params.wvec_dim)
     modified_vecs = []
     repeated_labels = []
+    new_sentences = []
     for sent, i in zip(batch_sentences, range(len(batch_sentences))):
+        sent_adv_embeddings = []
+        sent_adv_labels = []
+        sent_adversaries = []
         sentvec = embeddings[i]
         y_label = batch_labels[i]
         if sentvec is None:
             return np.zeros(params.wvec_dim), np.array(y_label)
+
+        new_sent = list(sent)
+        sent_adversaries.append(new_sent)
+        sent_adv_labels.append(y_label)
+        sent_adv_embeddings.append(sentvec)
+
+        new_sent = list(sent)
+        sent_adversaries.append(new_sent)
+        sent_adv_labels.append(y_label)
+        sent_adv_embeddings.append(sentvec)
         # print sent
         # print sentvec ,"\n"
-        for word in sent:
+        for word, word_pos in zip(sent, range(len(sent))):
             # print "new word ", word, "-" *80
             new_sentvec = np.array(sentvec)
             if word in params.word_vec:
@@ -119,22 +133,33 @@ def adversarialFunc(params, batch_sentences, batch_labels, embeddings):
                 # print word_syns
                 for syn in word_syns:
                     if syn in params.word_vec:
+
+                        if syn == word:
+                            continue
+
                         # print syn, "-"*30
                         # print params.word_vec[syn][:20]
-                        modified_vecs.append(np.add(new_sentvec, np.true_divide(params.word_vec[syn], len(sent))))
-                        repeated_labels.append(y_label)
+                        sent_adv_embeddings.append(np.add(new_sentvec, np.true_divide(params.word_vec[syn], len(sent))))
+                        sent_adv_labels.append(y_label)
+
+                        new_sent = list(sent)
+                        new_sent[word_pos] = syn
+                        sent_adversaries.append(new_sent)
+
                         # print "mod sent vec", "-" * 30
                         # print modified_vecs[len(modified_vecs)-1][:20], "\n"
-
+        modified_vecs.append(sent_adv_embeddings)
+        repeated_labels.append(np.array(sent_adv_labels))
+        new_sentences.append(sent_adversaries)
     # print "modifies vecs size:", len(modified_vecs)
-    repeated_labels = np.array(repeated_labels)
+    # repeated_labels = np.array(repeated_labels)
     # print " lable size:", repeated_labels.size
-    return modified_vecs, repeated_labels
+    return modified_vecs, repeated_labels, new_sentences
 
 # Set params for SentEval
 np.set_printoptions(suppress=True)
 np.set_printoptions(precision=4)
-params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': False, 'kfold': 5}
+params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5, 'model_name': 'bow','batch_size': 8}
 params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 128,
                                  'tenacity': 3, 'epoch_size': 2, 'cudaEfficient' : True}
 
@@ -149,16 +174,18 @@ if __name__ == "__main__":
     #                   'Length', 'WordContent', 'Depth', 'TopConstituents',
     #                   'BigramShift', 'Tense', 'SubjNumber', 'ObjNumber',
     #                   'OddManOut', 'CoordinationInversion']
-    transfer_tasks = ['SST2']
+    # transfer_tasks = ['SST2']
+    # transfer_tasks = ['STSBenchmark']
+    transfer_tasks = ['MRPC']
     results = se.eval(transfer_tasks)
-    adv_results = results['SST2']['adv_results']
-    uneq_df = pd.DataFrame(adv_results['uneq_adversaries'])
-    total_df = pd.DataFrame(adv_results['total_adversaries'])
-    wrong_df = pd.DataFrame(adv_results['wrong_adversaries'])
-    uneq_df_filename = 'uneq_file.csv'
-    total_df_filename = 'total_file.csv'
-    wrong_df_filename = 'wrong_file.csv'
-    uneq_df.to_csv(uneq_df_filename)
-    total_df.to_csv(total_df_filename)
-    wrong_df.to_csv(wrong_df_filename)
+    # adv_results = results['SST2']['adv_results']
+    # uneq_df = pd.DataFrame(adv_results['uneq_adversaries'])
+    # total_df = pd.DataFrame(adv_results['total_adversaries'])
+    # wrong_df = pd.DataFrame(adv_results['wrong_adversaries'])
+    # uneq_df_filename = 'uneq_file.csv'
+    # total_df_filename = 'total_file.csv'
+    # wrong_df_filename = 'wrong_file.csv'
+    # uneq_df.to_csv(uneq_df_filename)
+    # total_df.to_csv(total_df_filename)
+    # wrong_df.to_csv(wrong_df_filename)
     # print(results['task_results'])

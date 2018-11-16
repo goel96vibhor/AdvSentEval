@@ -257,7 +257,7 @@ class InferSent(nn.Module):
             sent_adv_labels.append(label)
 
             if sent == sentences[43]:
-                print("orig sent vec", sent)
+                print("orig sent vec", sent, " ,label:", label)
                 print("mod sent vec", new_sent)
             for word, word_pos in zip(sent, range(len(sent))):
                 # print "new word ", word, "-" *80

@@ -107,7 +107,8 @@ class SICKRelatednessEval(object):
                                  config=config)
 
         devpr, yhat = clf.run()
-
+        print("yhat shape:")
+        print(yhat.shape)
         pr = pearsonr(yhat, self.sick_data['test']['y'])[0]
         sr = spearmanr(yhat, self.sick_data['test']['y'])[0]
         pr = 0 if pr != pr else pr

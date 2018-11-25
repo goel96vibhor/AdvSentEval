@@ -372,8 +372,8 @@ class SplitClassifier(object):
                           seed=self.seed, cudaEfficient=self.cudaEfficient)
 
                 # TODO: Find a hack for reducing nb epoches in SNLI
-                clf.fit(self.X['train'], self.y['train'],
-                        validation_data=(self.X['valid'], self.y['valid']))
+                # clf.fit(self.X['train'], self.y['train'],
+                #         validation_data=(self.X['valid'], self.y['valid']))
             else:
                 clf = LogisticRegression(C=reg, random_state=self.seed)
                 clf.fit(self.X['train'], self.y['train'])

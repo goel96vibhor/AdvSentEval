@@ -107,6 +107,8 @@ class SSTEval(object):
             sst_embed = {'dev': {}, 'test': {}}
         else:
             sst_embed = {'train': {}, 'dev': {}, 'test': {}}
+        train_file_x = 'embeddings/trainx_' + params.model_name + "_sst.csv"
+        train_file_y = 'embeddings/trainy_' + params.model_name + "_sst.csv"
         test_file_x = 'embeddings/testx_' + params.model_name + "_sst.csv"
         test_file_y = 'embeddings/testy_' + params.model_name + "_sst.csv"
         dev_file_x = 'embeddings/devx_' + params.model_name + "_sst.csv"
@@ -136,6 +138,8 @@ class SSTEval(object):
             sst_embed[key]['y'] = np.array(self.sst_data[key]['y'])
             logging.info('Computed {0} embeddings'.format(key))
 
+        pickle.dump(sst_embed['train']['X'], open(train_file_x, 'wb'))
+        pickle.dump(sst_embed['train']['y'], open(train_file_y, 'wb'))
 
         pickle.dump(sst_embed['test']['X'], open(test_file_x, 'wb'))
         pickle.dump(sst_embed['test']['y'], open(test_file_y, 'wb'))

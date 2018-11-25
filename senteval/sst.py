@@ -172,12 +172,28 @@ class SSTEval(object):
                                     if self.adversarialFunc is not None else None
                             }
 
-        X = {'train': {}, 'valid': {}, 'test': {}}
-        y = {'train': {}, 'valid': {}, 'test': {}}
+        if params.train is not  None and params.train == False:
+            X = {'train': {},
+                'valid': sst_embed['dev']['X'],
+                 'test': sst_embed['test']['X']}
+            y = {'train': {},
+                'valid': sst_embed['dev']['y'],
+                 'test': sst_embed['test']['y']}
 
-        for key in sst_embed.keys():
-            X[key] = sst_embed.get(key)['X']
-            y[key] = sst_embed.get(key)['y']
+        else:
+            X = {'train': sst_embed['train']['X'],
+                 'valid': sst_embed['dev']['X'],
+                 'test': sst_embed['test']['X']}
+            y = {'train': sst_embed['train']['y'],
+                 'valid': sst_embed['dev']['y'],
+                 'test': sst_embed['test']['y']}
+
+        # X = {'train': {}, 'valid': {}, 'test': {}}
+        # y = {'train': {}, 'valid': {}, 'test': {}}
+        #
+        # for key in sst_embed.keys():
+        #     X[key] = sst_embed.get(key)['X']
+        #     y[key] = sst_embed.get(key)['y']
 
         # X = {'train': {},
         #      'valid': sst_embed['dev']['X'],

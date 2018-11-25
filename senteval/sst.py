@@ -115,23 +115,23 @@ class SSTEval(object):
         self.params = params
         self.adversarialFunc = params.adversarialFunc
 
-        # for key in self.sst_data:
-        #     logging.info('Computing embedding for {0}'.format(key))
-        #     # Sort to reduce padding
-        #     sorted_data = sorted(zip(self.sst_data[key]['X'],
-        #                              self.sst_data[key]['y']),
-        #                          key=lambda z: (len(z[0]), z[1]))
-        #     self.sst_data[key]['X'], self.sst_data[key]['y'] = map(list, zip(*sorted_data))
-        #
-        #     sst_embed[key]['X'] = []
-        #     for ii in range(0, len(self.sst_data[key]['y']), bsize):
-        #         batch = self.sst_data[key]['X'][ii:ii + bsize]
-        #         embeddings = batcher(params, batch)
-        #         sst_embed[key]['X'].append(embeddings)
-        #         # logging.info('computed batch {0}, out of total {1}'.format(ii,bsize))
-        #     sst_embed[key]['X'] = np.vstack(sst_embed[key]['X'])
-        #     sst_embed[key]['y'] = np.array(self.sst_data[key]['y'])
-        #     logging.info('Computed {0} embeddings'.format(key))
+        for key in self.sst_data:
+            logging.info('Computing embedding for {0}'.format(key))
+            # Sort to reduce padding
+            sorted_data = sorted(zip(self.sst_data[key]['X'],
+                                     self.sst_data[key]['y']),
+                                 key=lambda z: (len(z[0]), z[1]))
+            self.sst_data[key]['X'], self.sst_data[key]['y'] = map(list, zip(*sorted_data))
+
+            sst_embed[key]['X'] = []
+            for ii in range(0, len(self.sst_data[key]['y']), bsize):
+                batch = self.sst_data[key]['X'][ii:ii + bsize]
+                embeddings = batcher(params, batch)
+                sst_embed[key]['X'].append(embeddings)
+                # logging.info('computed batch {0}, out of total {1}'.format(ii,bsize))
+            sst_embed[key]['X'] = np.vstack(sst_embed[key]['X'])
+            sst_embed[key]['y'] = np.array(self.sst_data[key]['y'])
+            logging.info('Computed {0} embeddings'.format(key))
 
 
         # pickle.dump(sst_embed['test']['X'], open(test_file_x, 'wb'))
@@ -140,10 +140,10 @@ class SSTEval(object):
         # pickle.dump(sst_embed['dev']['y'], open(dev_file_y, 'wb'))
 
         logging.info("dumped files")
-        sst_embed['test']['X'] = pickle.load(open(test_file_x, 'rb'))
-        sst_embed['test']['y'] = pickle.load(open(test_file_y, 'rb'))
-        sst_embed['dev']['X'] = pickle.load(open(dev_file_x, 'rb'))
-        sst_embed['dev']['y'] = pickle.load(open(dev_file_y, 'rb'))
+        # sst_embed['test']['X'] = pickle.load(open(test_file_x, 'rb'))
+        # sst_embed['test']['y'] = pickle.load(open(test_file_y, 'rb'))
+        # sst_embed['dev']['X'] = pickle.load(open(dev_file_x, 'rb'))
+        # sst_embed['dev']['y'] = pickle.load(open(dev_file_y, 'rb'))
 
         # print "printing to check if wordvecs fored correct\n"
         #

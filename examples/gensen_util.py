@@ -39,17 +39,20 @@ def batcher(params, batch):
     return embeddings
 
 # Load GenSen model
-gensen_1 = GenSenSingle(
-    model_folder='../data/models',
-    filename_prefix='nli_large_bothskip',
-    pretrained_emb='fasttext/glove.840B.300d.h5'
-)
-gensen_2 = GenSenSingle(
-    model_folder='../data/models',
-    filename_prefix='nli_large_bothskip_parse',
-    pretrained_emb='fasttext/glove.840B.300d.h5'
-)
-gensen_encoder = GenSen(gensen_1, gensen_2)
+# gensen_1 = GenSenSingle(
+#     model_folder='../data/models',
+#     filename_prefix='nli_large_bothskip',
+#     pretrained_emb='fasttext/glove.840B.300d.h5'
+# )
+# gensen_2 = GenSenSingle(
+#     model_folder='../data/models',
+#     filename_prefix='nli_large_bothskip_parse',
+#     pretrained_emb='fasttext/glove.840B.300d.h5'
+# )
+# gensen_encoder = GenSen(gensen_1, gensen_2)
+
+gensen_encoder = []
+
 # reps_h, reps_h_t = gensen_encoder.get_representation(
 #     sentences, pool='last', return_numpy=True, tokenize=True
 # )

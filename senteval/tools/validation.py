@@ -403,20 +403,21 @@ class SplitClassifier(object):
         pickle.dump(clf, open(filename, 'wb'))
 
 
-        # orig_test_x = self.X['test']
-        # orig_test_y = self.y['test']
-        # total_adversaries = []
-        # uneq_adversaries = []
-        # wrong_adversaries = []
-        # adv_results = dict()
-        # orig_predictions = []
+        orig_test_x = self.X['test']
+        orig_test_y = self.y['test']
+        total_adversaries = []
+        uneq_adversaries = []
+        wrong_adversaries = []
+        adv_results = dict()
+        orig_predictions = []
+
         # clf = pickle.load(open(filename, 'rb'))
-        #
-        # testaccuracy = clf.score(self.X['test'], self.y['test'])
-        # testaccuracy = round(100*testaccuracy, 2)
-        # print('devacc: ' + str(devaccuracy) + ' acc: ' + str(testaccuracy) +
-        #         ' ndev: ' + str(len(self.X['train'])) +
-        #         ' ntest: ' + str(len(self.X['test'])))
+
+        testaccuracy = clf.score(self.X['test'], self.y['test'])
+        testaccuracy = round(100*testaccuracy, 2)
+        print('devacc: ' + str(devaccuracy) + ' acc: ' + str(testaccuracy) +
+                ' ndev: ' + str(len(self.X['train'])) +
+                ' ntest: ' + str(len(self.X['test'])))
         #
         # wrong_first = 0
         # test_preds = clf.predict(self.X['test'])

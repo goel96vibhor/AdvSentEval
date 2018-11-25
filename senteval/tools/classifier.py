@@ -42,6 +42,7 @@ class PyTorchClassifier(object):
             trainX, trainy = X, y
             devX, devy = validation_data
         else:
+            print("validation data is None, creating own data")
             permutation = np.random.permutation(len(X))
             trainidx = permutation[int(validation_split * len(X)):]
             devidx = permutation[0:int(validation_split * len(X))]

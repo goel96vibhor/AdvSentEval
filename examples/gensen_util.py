@@ -32,7 +32,7 @@ def prepare(params, samples):
 
 def batcher(params, batch):
     batch = [' '.join(sent) if sent != [] else '.' for sent in batch]
-    _, reps_h_t = gensen.get_representation(
+    _, reps_h_t = gensen_encoder.get_representation(
         batch, pool='last', return_numpy=True, tokenize=True
     )
     embeddings = reps_h_t

@@ -55,7 +55,7 @@ gensen_encoder = GenSen(gensen_1, gensen_2)
 # )
 
 # Set params for SentEval
-params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5, 'model_name': 'bow','batch_size': 8}
+params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5, 'model_name': 'bow','batch_size': 128}
 params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 128,
                                  'tenacity': 3, 'epoch_size': 2, 'cudaEfficient' : True}
 params_senteval['gensen'] = gensen_encoder

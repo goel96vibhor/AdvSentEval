@@ -348,14 +348,14 @@ class SplitClassifier(object):
         return sent
 
 
-    def run(self):
+    def run(self, params):
 
         # if self.config['adversarial_sample_generator'] is not  None :
         #     adv_embed_x, adv_embed_y = self.config['adversarial_sample_generator'](self.X['test'], self.y['test'])
         # else:
         #     print("No adversarial attacks specified")
 
-        filename = 'models/finalized_model_gensen.sav'
+        filename = 'models/finalized_model_' + params.model_name + '_' + params.task_name + '_.sav'
         devaccuracy = 0
 
         logging.info('Training {0} with standard validation..'

@@ -107,10 +107,10 @@ class SSTEval(object):
             sst_embed = {'dev': {}, 'test': {}}
         else:
             sst_embed = {'train': {}, 'dev': {}, 'test': {}}
-        test_file_x = 'testx_' + params.model_name + "_2.csv"
-        test_file_y = 'testy_' + params.model_name + "_2.csv"
-        dev_file_x = 'devx_' + params.model_name + "_2.csv"
-        dev_file_y = 'devy_' + params.model_name + "_2.csv"
+        test_file_x = 'embeddings/testx_' + params.model_name + "_sst.csv"
+        test_file_y = 'embeddings/testy_' + params.model_name + "_sst.csv"
+        dev_file_x = 'embeddings/devx_' + params.model_name + "_sst.csv"
+        dev_file_y = 'embeddings/devy_' + params.model_name + "_sst.csv"
         bsize = params.batch_size
         self.params = params
         self.adversarialFunc = params.adversarialFunc
@@ -125,6 +125,7 @@ class SSTEval(object):
 
             sst_embed[key]['X'] = []
             for ii in range(0, len(self.sst_data[key]['y']), bsize):
+                print("%d done out of %d"%(ii, len(self.sst_data[key]['y'])))
                 batch = self.sst_data[key]['X'][ii:ii + bsize]
                 embeddings = batcher(params, batch)
                 sst_embed[key]['X'].append(embeddings)
@@ -134,10 +135,10 @@ class SSTEval(object):
             logging.info('Computed {0} embeddings'.format(key))
 
 
-        # pickle.dump(sst_embed['test']['X'], open(test_file_x, 'wb'))
-        # pickle.dump(sst_embed['test']['y'], open(test_file_y, 'wb'))
-        # pickle.dump(sst_embed['dev']['X'], open(dev_file_x, 'wb'))
-        # pickle.dump(sst_embed['dev']['y'], open(dev_file_y, 'wb'))
+        pickle.dump(sst_embed['test']['X'], open(test_file_x, 'wb'))
+        pickle.dump(sst_embed['test']['y'], open(test_file_y, 'wb'))
+        pickle.dump(sst_embed['dev']['X'], open(dev_file_x, 'wb'))
+        pickle.dump(sst_embed['dev']['y'], open(dev_file_y, 'wb'))
 
         logging.info("dumped files")
         # sst_embed['test']['X'] = pickle.load(open(test_file_x, 'rb'))
@@ -176,8 +177,8 @@ class SSTEval(object):
         #      'test': sst_embed['test']['y']}
 
         clf = SplitClassifier(X, y, config=config_classifier, test_dataX= self.sst_data['test']['X'], test_dataY= self.sst_data['test']['y'] )
-
-        devacc, testacc, adv_results = clf.run()
+        params.task_name = "sst"
+        devacc, testacc, adv_results = clf.run(params)
         logging.debug('\nDev acc : {0} Test acc : {1} for \
             SST {2} classification\n'.format(devacc, testacc, self.task_name))
 

@@ -126,8 +126,8 @@ class SSTEval(object):
             sst_embed[key]['X'] = []
             for ii in range(0, len(self.sst_data[key]['y']), bsize):
                 n = len(self.sst_data[key]['y'])/bsize
-                if ((ii/bsize)*100/n) % 10 == 0:
-                    print("%d percent done out of %d"%( ((ii/bsize)*100/n), len(self.sst_data[key]['y'])))
+                # if ((ii/bsize)*100/n) % 10 == 0:
+                print("%d percent done out of %d"%( ((ii/bsize)*100/n), len(self.sst_data[key]['y'])))
                 batch = self.sst_data[key]['X'][ii:ii + bsize]
                 embeddings = batcher(params, batch)
                 sst_embed[key]['X'].append(embeddings)

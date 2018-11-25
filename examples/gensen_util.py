@@ -33,7 +33,7 @@ def prepare(params, samples):
 def batcher(params, batch):
     batch = [' '.join(sent) if sent != [] else '.' for sent in batch]
     _, reps_h_t = gensen.get_representation(
-        sentences, pool='last', return_numpy=True, tokenize=True
+        batch, pool='last', return_numpy=True, tokenize=True
     )
     embeddings = reps_h_t
     return embeddings
@@ -50,9 +50,9 @@ gensen_2 = GenSenSingle(
     pretrained_emb='fasttext/glove.840B.300d.h5'
 )
 gensen_encoder = GenSen(gensen_1, gensen_2)
-reps_h, reps_h_t = gensen_encoder.get_representation(
-    sentences, pool='last', return_numpy=True, tokenize=True
-)
+# reps_h, reps_h_t = gensen_encoder.get_representation(
+#     sentences, pool='last', return_numpy=True, tokenize=True
+# )
 
 # Set params for SentEval
 params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5, 'model_name': 'bow','batch_size': 8}

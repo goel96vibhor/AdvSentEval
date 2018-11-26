@@ -17,7 +17,9 @@ import logging
 # import GenSen package
 from gensen import GenSen, GenSenSingle
 import gensen
-from AdversarialModels import WordNetSynonym
+
+
+
 
 # Set PATHs
 PATH_TO_SENTEVAL = '../'
@@ -26,6 +28,9 @@ PATH_TO_DATA = '../data'
 # import SentEval
 sys.path.insert(0, PATH_TO_SENTEVAL)
 import senteval
+sys.path.insert(1,PATH_TO_SENTEVAL)
+from AdversarialModels import WordNetSynonym
+
 
 # SentEval prepare and batcher
 def prepare(params, samples):

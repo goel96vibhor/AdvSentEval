@@ -358,49 +358,49 @@ class SplitClassifier(object):
         filename = 'models/finalized_model_' + params.model_name + '_' + params.task_name + '_.sav'
         devaccuracy = 0
 
-        logging.info('Training {0} with standard validation..'
-                     .format(self.modelname))
-        regs = [10**t for t in range(-5, -1)] if self.usepytorch else \
-               [2**t for t in range(-2, 4, 1)]
-        if self.noreg:
-            regs = [1e-9 if self.usepytorch else 1e9]
-        scores = []
-        for reg in regs:
-            if self.usepytorch:
-                clf = MLP(self.classifier_config, inputdim=self.featdim,
-                          nclasses=self.nclasses, l2reg=reg,
-                          seed=self.seed, cudaEfficient=self.cudaEfficient)
-
-                # TODO: Find a hack for reducing nb epoches in SNLI
-                clf.fit(self.X['train'], self.y['train'],
-                        validation_data=(self.X['valid'], self.y['valid']))
-            else:
-                clf = LogisticRegression(C=reg, random_state=self.seed)
-                clf.fit(self.X['train'], self.y['train'])
-            scores.append(round(100*clf.score(self.X['valid'],
-                                self.y['valid']), 2))
-        logging.info([('reg:'+str(regs[idx]), scores[idx])
-                      for idx in range(len(scores))])
-        optreg = regs[np.argmax(scores)]
-        devaccuracy = np.max(scores)
-        logging.info('Validation : best param found is reg = {0} with score \
-            {1}'.format(optreg, devaccuracy))
-        clf = LogisticRegression(C=optreg, random_state=self.seed)
-        logging.info('Evaluating...')
-        if self.usepytorch:
-            clf = MLP(self.classifier_config, inputdim=self.featdim,
-                      nclasses=self.nclasses, l2reg=optreg,
-                      seed=self.seed, cudaEfficient=self.cudaEfficient)
-
-            # TODO: Find a hack for reducing nb epoches in SNLI
-            clf.fit(self.X['train'], self.y['train'],
-                    validation_data=(self.X['valid'], self.y['valid']))
-        else:
-            clf = LogisticRegression(C=optreg, random_state=self.seed)
-            clf.fit(self.X['train'], self.y['train'])
-
-
-        pickle.dump(clf, open(filename, 'wb'))
+        # logging.info('Training {0} with standard validation..'
+        #              .format(self.modelname))
+        # regs = [10**t for t in range(-5, -1)] if self.usepytorch else \
+        #        [2**t for t in range(-2, 4, 1)]
+        # if self.noreg:
+        #     regs = [1e-9 if self.usepytorch else 1e9]
+        # scores = []
+        # for reg in regs:
+        #     if self.usepytorch:
+        #         clf = MLP(self.classifier_config, inputdim=self.featdim,
+        #                   nclasses=self.nclasses, l2reg=reg,
+        #                   seed=self.seed, cudaEfficient=self.cudaEfficient)
+        #
+        #         # TODO: Find a hack for reducing nb epoches in SNLI
+        #         clf.fit(self.X['train'], self.y['train'],
+        #                 validation_data=(self.X['valid'], self.y['valid']))
+        #     else:
+        #         clf = LogisticRegression(C=reg, random_state=self.seed)
+        #         clf.fit(self.X['train'], self.y['train'])
+        #     scores.append(round(100*clf.score(self.X['valid'],
+        #                         self.y['valid']), 2))
+        # logging.info([('reg:'+str(regs[idx]), scores[idx])
+        #               for idx in range(len(scores))])
+        # optreg = regs[np.argmax(scores)]
+        # devaccuracy = np.max(scores)
+        # logging.info('Validation : best param found is reg = {0} with score \
+        #     {1}'.format(optreg, devaccuracy))
+        # clf = LogisticRegression(C=optreg, random_state=self.seed)
+        # logging.info('Evaluating...')
+        # if self.usepytorch:
+        #     clf = MLP(self.classifier_config, inputdim=self.featdim,
+        #               nclasses=self.nclasses, l2reg=optreg,
+        #               seed=self.seed, cudaEfficient=self.cudaEfficient)
+        #
+        #     # TODO: Find a hack for reducing nb epoches in SNLI
+        #     clf.fit(self.X['train'], self.y['train'],
+        #             validation_data=(self.X['valid'], self.y['valid']))
+        # else:
+        #     clf = LogisticRegression(C=optreg, random_state=self.seed)
+        #     clf.fit(self.X['train'], self.y['train'])
+        #
+        #
+        # pickle.dump(clf, open(filename, 'wb'))
 
 
         orig_test_x = self.X['test']
@@ -411,7 +411,7 @@ class SplitClassifier(object):
         adv_results = dict()
         orig_predictions = []
 
-        # clf = pickle.load(open(filename, 'rb'))
+        clf = pickle.load(open(filename, 'rb'))
 
         testaccuracy = clf.score(self.X['test'], self.y['test'])
         testaccuracy = round(100*testaccuracy, 2)
@@ -419,113 +419,113 @@ class SplitClassifier(object):
                 ' ndev: ' + str(len(self.X['train'])) +
                 ' ntest: ' + str(len(self.X['test'])))
         #
-        # wrong_first = 0
-        # test_preds = clf.predict(self.X['test'])
-        # for test_pred, i in zip(test_preds, range(len(test_preds))):
-        #     if test_pred != self.y['test'][i]:
-        #         wrong_first += 1
-        # print("test wrong cases:", wrong_first)
-        #
-        #
-        # allowed_error = 0.00001
-        # change_due_to_randomness = 0
-        # wrong_first = 0
-        # if self.config['adversarial_sample_generator'] is not  None :
-        #     adv_embed_x, adv_embed_y, adv_sentences = self.config['adversarial_sample_generator'](self.X['test'], self.y['test'])
-        #     adv_preds = []
-        #     for i in range(len(adv_embed_x)):
-        #         orig_pred = clf.predict(self.X['test'][i].reshape(1, -1))
-        #         orig_predictions.append(orig_pred)
-        #         sample_preds = clf.predict(adv_embed_x[i])
-        #         adv_preds.append(sample_preds)
-        #         wrong_count =0
-        #         change_count = 0
-        #
-        #         if i == 10:
-        #             print(self.get_sentence(adv_sentences[i][0]))
-        #             print("orig predcitions", adv_embed_y[i])
-        #             print("new predictions", sample_preds)
-        #             print("orig embeddings", self.X['test'][i])
-        #             print("new embeddings", adv_embed_x[i][0])
-        #
-        #
-        #         if sample_preds[0] != sample_preds[1]:
-        #             change_due_to_randomness += 1
-        #             print("predictions are not equal for the sentence %d"%(i))
-        #         # orig_pred = sample_preds[0]
-        #
-        #         if sample_preds[0] != adv_embed_y[i][0]:
-        #             wrong_first += 1
-        #             # print("predictions are wrong for the sentence %d"%(i))
-        #
-        #         equal = True
-        #         no_of_dim_diff = 0
-        #         for j in range(len(adv_embed_x[i][0])):
-        #             if abs(adv_embed_x[i][0][j] - adv_embed_x[i][1][j]) >= allowed_error:
-        #                 equal = False
-        #                 no_of_dim_diff += 1
-        #
-        #         if equal == False:
-        #             print("\nembeddings are not equal for the sentence %d, no of dims different %d" % (i, no_of_dim_diff))
-        #             print("orig embeddings", self.X['test'][i])
-        #             print("new embeddings\n", adv_embed_x[i][0])
-        #
-        #         indexes_to_print = {4,12,15,17,18,26,36,43,48,52,56,59,63,67,69,72,76,79,83,88}
-        #         success_attack = False
-        #         wrong_indexes = []
-        #         for sample_pred, ind in zip(sample_preds, range(len(sample_preds))):
-        #
-        #
-        #             if sample_pred !=adv_embed_y[i][0]:
-        #                 # print("")
-        #                 wrong_count+= 1
-        #             if sample_pred !=sample_preds[0]:
-        #                 success_attack = True
-        #                 wrong_indexes.append(ind)
-        #                 change_count+=1
-        #
-        #         if success_attack and self.test_dataX is not None and self.test_dataY is not None:
-        #             # if i not in indexes_to_print:
-        #             #     continue
-        #             print( self.get_sentence(adv_sentences[i][0]), sample_preds[0], len(adv_embed_x[i]))
-        #             print( self.get_sentence(adv_sentences[i][1]), sample_preds[1], len(adv_sentences[i]))
-        #             for wrong_index in wrong_indexes:
-        #                 print( self.get_sentence(adv_sentences[i][wrong_index]), sample_preds[wrong_index])
-        #
-        #
-        #             # if i%10 == 0:
-        #
-        #
-        #
-        #
-        #
-        #         uneq_adversaries.append(change_count)
-        #         wrong_adversaries.append(wrong_count)
-        #         total_adversaries.append(len(sample_preds))
-        #         # print sample_preds, adv_embed_y[i]
-        #         if i % 100 == 0:
-        #             print("%d sentences evaluated"%i)
-        #
-        #     print("wring first count:%d" % (wrong_first))
-        #     print("change due to randomness count:%d" % (change_due_to_randomness))
-        #     print("non equal count:%d"%(np.count_nonzero(uneq_adversaries)))
-        #     print("wrong count:%d"%(np.count_nonzero(wrong_adversaries)))
-        #     print("total count:%d" % (len(adv_embed_x)))
-        #     # print uneq_adversaries[:-10], total_adversaries[:-10]
-        #     print("adversaries size:%d" %(np.sum(total_adversaries)))
-        #
-        #     adv_results['total_adversaries'] = total_adversaries
-        #     adv_results['wrong_adversaries'] = wrong_adversaries
-        #     adv_results['uneq_adversaries'] = uneq_adversaries
-        #     adv_results['model'] = clf
-        #     adv_results['test_x'] = self.X['test']
-        #     adv_results['test_y'] = self.y['test']
-        #     adv_results['adv_test_x'] = adv_embed_x
-        #     adv_results['adv_test_y'] = adv_embed_y
-        #     adv_results['adv_preds'] = adv_preds
-        #     adv_results['orig_predictions'] = orig_predictions
-        # else:
-        #     print("No adversarial attacks specified")
+        wrong_first = 0
+        test_preds = clf.predict(self.X['test'])
+        for test_pred, i in zip(test_preds, range(len(test_preds))):
+            if test_pred != self.y['test'][i]:
+                wrong_first += 1
+        print("test wrong cases:", wrong_first)
+
+
+        allowed_error = 0.00001
+        change_due_to_randomness = 0
+        wrong_first = 0
+        if self.config['adversarial_sample_generator'] is not  None :
+            adv_embed_x, adv_embed_y, adv_sentences = self.config['adversarial_sample_generator'](self.X['test'], self.y['test'])
+            adv_preds = []
+            for i in range(len(adv_embed_x)):
+                orig_pred = clf.predict(self.X['test'][i].reshape(1, -1))
+                orig_predictions.append(orig_pred)
+                sample_preds = clf.predict(adv_embed_x[i])
+                adv_preds.append(sample_preds)
+                wrong_count =0
+                change_count = 0
+
+                if i == 10:
+                    print(self.get_sentence(adv_sentences[i][0]))
+                    print("orig predcitions", adv_embed_y[i])
+                    print("new predictions", sample_preds)
+                    print("orig embeddings", self.X['test'][i])
+                    print("new embeddings", adv_embed_x[i][0])
+
+
+                if sample_preds[0] != sample_preds[1]:
+                    change_due_to_randomness += 1
+                    print("predictions are not equal for the sentence %d"%(i))
+                # orig_pred = sample_preds[0]
+
+                if sample_preds[0] != adv_embed_y[i][0]:
+                    wrong_first += 1
+                    # print("predictions are wrong for the sentence %d"%(i))
+
+                equal = True
+                no_of_dim_diff = 0
+                for j in range(len(adv_embed_x[i][0])):
+                    if abs(adv_embed_x[i][0][j] - adv_embed_x[i][1][j]) >= allowed_error:
+                        equal = False
+                        no_of_dim_diff += 1
+
+                if equal == False:
+                    print("\nembeddings are not equal for the sentence %d, no of dims different %d" % (i, no_of_dim_diff))
+                    print("orig embeddings", self.X['test'][i])
+                    print("new embeddings\n", adv_embed_x[i][0])
+
+                indexes_to_print = {4,12,15,17,18,26,36,43,48,52,56,59,63,67,69,72,76,79,83,88}
+                success_attack = False
+                wrong_indexes = []
+                for sample_pred, ind in zip(sample_preds, range(len(sample_preds))):
+
+
+                    if sample_pred !=adv_embed_y[i][0]:
+                        # print("")
+                        wrong_count+= 1
+                    if sample_pred !=sample_preds[0]:
+                        success_attack = True
+                        wrong_indexes.append(ind)
+                        change_count+=1
+
+                if success_attack and self.test_dataX is not None and self.test_dataY is not None:
+                    # if i not in indexes_to_print:
+                    #     continue
+                    print( self.get_sentence(adv_sentences[i][0]), sample_preds[0], len(adv_embed_x[i]))
+                    print( self.get_sentence(adv_sentences[i][1]), sample_preds[1], len(adv_sentences[i]))
+                    for wrong_index in wrong_indexes:
+                        print( self.get_sentence(adv_sentences[i][wrong_index]), sample_preds[wrong_index])
+
+
+                    # if i%10 == 0:
+
+
+
+
+
+                uneq_adversaries.append(change_count)
+                wrong_adversaries.append(wrong_count)
+                total_adversaries.append(len(sample_preds))
+                # print sample_preds, adv_embed_y[i]
+                if i % 100 == 0:
+                    print("%d sentences evaluated"%i)
+
+            print("wring first count:%d" % (wrong_first))
+            print("change due to randomness count:%d" % (change_due_to_randomness))
+            print("non equal count:%d"%(np.count_nonzero(uneq_adversaries)))
+            print("wrong count:%d"%(np.count_nonzero(wrong_adversaries)))
+            print("total count:%d" % (len(adv_embed_x)))
+            # print uneq_adversaries[:-10], total_adversaries[:-10]
+            print("adversaries size:%d" %(np.sum(total_adversaries)))
+
+            adv_results['total_adversaries'] = total_adversaries
+            adv_results['wrong_adversaries'] = wrong_adversaries
+            adv_results['uneq_adversaries'] = uneq_adversaries
+            adv_results['model'] = clf
+            adv_results['test_x'] = self.X['test']
+            adv_results['test_y'] = self.y['test']
+            adv_results['adv_test_x'] = adv_embed_x
+            adv_results['adv_test_y'] = adv_embed_y
+            adv_results['adv_preds'] = adv_preds
+            adv_results['orig_predictions'] = orig_predictions
+        else:
+            print("No adversarial attacks specified")
 
 
 

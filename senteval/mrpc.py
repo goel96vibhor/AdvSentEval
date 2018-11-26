@@ -72,7 +72,7 @@ class MRPCEval(object):
 
             debug_embeds = np.c_[np.abs( orig_vector_a - orig_vector_b), orig_vector_a * orig_vector_b]
 
-            if i == 0:
+            if stidx == 0:
                 print("debug embeds:", debug_embeds[0])
                 print("test actual embeds:", sst_embed_x[0])
 

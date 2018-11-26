@@ -45,7 +45,7 @@ def batcher(params, batch):
     return embeddings
 
 
-def prepare_adversarial_samples(self, sentences, y_labels):
+def prepare_adversarial_samples(sentences, y_labels):
 
     new_sentences = []
     new_labels = []

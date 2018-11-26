@@ -164,7 +164,7 @@ def adversarialFunc(params, batch_sentences, batch_labels, embeddings = None):
 
         sentences = [' '.join(sent) if sent != [] else '.' for sent in sent_adversaries]
         _, reps_h_t = gensen_encoder.get_representation(
-            sent_adversaries, pool='last', return_numpy=True, tokenize=True
+            sentences, pool='last', return_numpy=True, tokenize=True
         )
         sent_adv_embeddings = reps_h_t
 

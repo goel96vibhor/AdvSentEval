@@ -459,7 +459,7 @@ class SplitClassifier(object):
                 if sample_preds[0] != adv_embed_y[i][0]:
                     wrong_first += 1
                     
-                if self.y['test'] != adv_embed_y[i][0]:
+                if self.y['test'][i] != adv_embed_y[i][0]:
                     label_diff_count += 1
                     # print("predictions are wrong for the sentence %d"%(i))
 

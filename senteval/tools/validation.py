@@ -150,48 +150,48 @@ class KFoldClassifier(object):
         filename = 'models/finalized_model_' + params.model_name + '_' + params.task_name + '_.sav'
         devaccuracy = 0
 
-        for reg in regs:
-            scanscores = []
-            for train_idx, test_idx in skf.split(self.train['X'],
-                                                 self.train['y']):
-                # Split data
-                X_train, y_train = self.train['X'][train_idx], self.train['y'][train_idx]
-
-                X_test, y_test = self.train['X'][test_idx], self.train['y'][test_idx]
-
-                # Train classifier
-                if self.usepytorch:
-                    clf = MLP(self.classifier_config, inputdim=self.featdim,
-                              nclasses=self.nclasses, l2reg=reg,
-                              seed=self.seed)
-                    clf.fit(X_train, y_train, validation_data=(X_test, y_test))
-                else:
-                    clf = LogisticRegression(C=reg, random_state=self.seed)
-                    clf.fit(X_train, y_train)
-                score = clf.score(X_test, y_test)
-                scanscores.append(score)
-            # Append mean score
-            scores.append(round(100*np.mean(scanscores), 2))
-
-        # evaluation
-        logging.info([('reg:' + str(regs[idx]), scores[idx])
-                      for idx in range(len(scores))])
-        optreg = regs[np.argmax(scores)]
-        devaccuracy = np.max(scores)
-        logging.info('Cross-validation : best param found is reg = {0} \
-            with score {1}'.format(optreg, devaccuracy))
-
-        logging.info('Evaluating...')
-        if self.usepytorch:
-            clf = MLP(self.classifier_config, inputdim=self.featdim,
-                      nclasses=self.nclasses, l2reg=optreg,
-                      seed=self.seed)
-            clf.fit(self.train['X'], self.train['y'], validation_split=0.05)
-        else:
-            clf = LogisticRegression(C=optreg, random_state=self.seed)
-            clf.fit(self.train['X'], self.train['y'])
-
-        pickle.dump(clf, open(filename, 'wb'))
+        # for reg in regs:
+        #     scanscores = []
+        #     for train_idx, test_idx in skf.split(self.train['X'],
+        #                                          self.train['y']):
+        #         # Split data
+        #         X_train, y_train = self.train['X'][train_idx], self.train['y'][train_idx]
+        #
+        #         X_test, y_test = self.train['X'][test_idx], self.train['y'][test_idx]
+        #
+        #         # Train classifier
+        #         if self.usepytorch:
+        #             clf = MLP(self.classifier_config, inputdim=self.featdim,
+        #                       nclasses=self.nclasses, l2reg=reg,
+        #                       seed=self.seed)
+        #             clf.fit(X_train, y_train, validation_data=(X_test, y_test))
+        #         else:
+        #             clf = LogisticRegression(C=reg, random_state=self.seed)
+        #             clf.fit(X_train, y_train)
+        #         score = clf.score(X_test, y_test)
+        #         scanscores.append(score)
+        #     # Append mean score
+        #     scores.append(round(100*np.mean(scanscores), 2))
+        #
+        # # evaluation
+        # logging.info([('reg:' + str(regs[idx]), scores[idx])
+        #               for idx in range(len(scores))])
+        # optreg = regs[np.argmax(scores)]
+        # devaccuracy = np.max(scores)
+        # logging.info('Cross-validation : best param found is reg = {0} \
+        #     with score {1}'.format(optreg, devaccuracy))
+        #
+        # logging.info('Evaluating...')
+        # if self.usepytorch:
+        #     clf = MLP(self.classifier_config, inputdim=self.featdim,
+        #               nclasses=self.nclasses, l2reg=optreg,
+        #               seed=self.seed)
+        #     clf.fit(self.train['X'], self.train['y'], validation_split=0.05)
+        # else:
+        #     clf = LogisticRegression(C=optreg, random_state=self.seed)
+        #     clf.fit(self.train['X'], self.train['y'])
+        #
+        # pickle.dump(clf, open(filename, 'wb'))
 
         orig_test_x = self.test['X']
         orig_test_y = self.test['y']

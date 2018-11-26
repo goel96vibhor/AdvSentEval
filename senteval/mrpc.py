@@ -122,49 +122,52 @@ class MRPCEval(object):
         self.params = params
         self.adversarialFunc = params.adversarialFunc
 
-        for key in self.mrpc_data:
-            logging.info('Computing embedding for {0}'.format(key))
-            # Sort to reduce padding
-            text_data = {}
-            sorted_corpus = sorted(zip(self.mrpc_data[key]['X_A'],
-                                       self.mrpc_data[key]['X_B'],
-                                       self.mrpc_data[key]['y']),
-                                   key=lambda z: (len(z[0]), len(z[1]), z[2]))
-
-            text_data['A'] = [x for (x, y, z) in sorted_corpus]
-            text_data['B'] = [y for (x, y, z) in sorted_corpus]
-            text_data['y'] = [z for (x, y, z) in sorted_corpus]
-
-            for txt_type in ['A', 'B']:
-                mrpc_embed[key][txt_type] = []
-                for ii in range(0, len(text_data['y']), params.batch_size):
-                    batch = text_data[txt_type][ii:ii + params.batch_size]
-                    embeddings = batcher(params, batch)
-                    mrpc_embed[key][txt_type].append(embeddings)
-                mrpc_embed[key][txt_type] = np.vstack(mrpc_embed[key][txt_type])
-            mrpc_embed[key]['y'] = np.array(text_data['y'])
-            logging.info('Computed {0} embeddings'.format(key))
-
-
-
-        pickle.dump(mrpc_embed['test']['A'], open(test_file_x_a, 'wb'))
-        pickle.dump(mrpc_embed['test']['B'], open(test_file_x_b, 'wb'))
-        pickle.dump(mrpc_embed['test']['y'], open(test_file_y, 'wb'))
-
-        pickle.dump(mrpc_embed['train']['A'], open(train_file_x_a, 'wb'))
-        pickle.dump(mrpc_embed['train']['B'], open(train_file_x_b, 'wb'))
-        pickle.dump(mrpc_embed['train']['y'], open(train_file_y, 'wb'))
-
-        print("dumped embedding files")
-
-        # logging.info("reading files")
-        # mrpc_embed['test']['A'] = pickle.load(open(test_file_x_a, 'rb'))
-        # mrpc_embed['test']['B'] = pickle.load(open(test_file_x_b, 'rb'))
-        # mrpc_embed['test']['y'] = pickle.load(open(test_file_y, 'rb'))
+        # for key in self.mrpc_data:
+        #     logging.info('Computing embedding for {0}'.format(key))
+        #     # Sort to reduce padding
+        #     text_data = {}
+        #     sorted_corpus = sorted(zip(self.mrpc_data[key]['X_A'],
+        #                                self.mrpc_data[key]['X_B'],
+        #                                self.mrpc_data[key]['y']),
+        #                            key=lambda z: (len(z[0]), len(z[1]), z[2]))
         #
-        # mrpc_embed['train']['A'] = pickle.load(open(train_file_x_a, 'rb'))
-        # mrpc_embed['train']['B'] = pickle.load(open(train_file_x_b, 'rb'))
-        # mrpc_embed['train']['y'] = pickle.load(open(train_file_y, 'rb'))
+        #     text_data['A'] = [x for (x, y, z) in sorted_corpus]
+        #     text_data['B'] = [y for (x, y, z) in sorted_corpus]
+        #     text_data['y'] = [z for (x, y, z) in sorted_corpus]
+        #
+        #     for txt_type in ['A', 'B']:
+        #         mrpc_embed[key][txt_type] = []
+        #         for ii in range(0, len(text_data['y']), params.batch_size):
+        #             n = len(text_data['y']) / params.batch_size
+        #             if ((ii/params.batch_size)*100/n) % 10 == 0:
+        #                 print("%d percent done out of %d"%( ((ii/params.batch_size)*100/n), len(text_data['y'])))
+        #             batch = text_data[txt_type][ii:ii + params.batch_size]
+        #             embeddings = batcher(params, batch)
+        #             mrpc_embed[key][txt_type].append(embeddings)
+        #         mrpc_embed[key][txt_type] = np.vstack(mrpc_embed[key][txt_type])
+        #     mrpc_embed[key]['y'] = np.array(text_data['y'])
+        #     logging.info('Computed {0} embeddings'.format(key))
+        #
+        #
+        #
+        # pickle.dump(mrpc_embed['test']['A'], open(test_file_x_a, 'wb'))
+        # pickle.dump(mrpc_embed['test']['B'], open(test_file_x_b, 'wb'))
+        # pickle.dump(mrpc_embed['test']['y'], open(test_file_y, 'wb'))
+        #
+        # pickle.dump(mrpc_embed['train']['A'], open(train_file_x_a, 'wb'))
+        # pickle.dump(mrpc_embed['train']['B'], open(train_file_x_b, 'wb'))
+        # pickle.dump(mrpc_embed['train']['y'], open(train_file_y, 'wb'))
+        #
+        # print("dumped embedding files")
+
+        logging.info("reading files")
+        mrpc_embed['test']['A'] = pickle.load(open(test_file_x_a, 'rb'))
+        mrpc_embed['test']['B'] = pickle.load(open(test_file_x_b, 'rb'))
+        mrpc_embed['test']['y'] = pickle.load(open(test_file_y, 'rb'))
+
+        mrpc_embed['train']['A'] = pickle.load(open(train_file_x_a, 'rb'))
+        mrpc_embed['train']['B'] = pickle.load(open(train_file_x_b, 'rb'))
+        mrpc_embed['train']['y'] = pickle.load(open(train_file_y, 'rb'))
 
         # Train
         trainA = mrpc_embed['train']['A']

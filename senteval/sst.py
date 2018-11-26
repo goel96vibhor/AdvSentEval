@@ -77,11 +77,11 @@ class SSTEval(object):
         adv_embed_x = []
         adv_embed_y = []
         adv_sentences = []
-        # adv_batch_size = self.params.batch_size
+        adv_batch_size = self.params.batch_size
 
         total_samples = len(sst_embed_x)
         # total_samples = 100
-        adv_batch_size = total_samples
+        # adv_batch_size = total_samples
         for stidx in range(0, total_samples, adv_batch_size):
 
             batch = self.sst_data['test']['X'][stidx:stidx + adv_batch_size]

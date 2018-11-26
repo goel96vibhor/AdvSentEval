@@ -223,4 +223,4 @@ if __name__ == "__main__":
                       # 'OddManOut', 'CoordinationInversion']
     transfer_tasks = ['SST2']
     results = se.eval(transfer_tasks)
-    print(results)
+    # print(results)

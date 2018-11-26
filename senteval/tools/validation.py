@@ -431,6 +431,7 @@ class SplitClassifier(object):
         allowed_error = 0.00001
         change_due_to_randomness = 0
         wrong_first = 0
+        label_diff_count = 0
         if self.config['adversarial_sample_generator'] is not  None :
             adv_embed_x, adv_embed_y, adv_sentences = self.config['adversarial_sample_generator'](self.X['test'], self.y['test'])
             adv_preds = []
@@ -457,6 +458,9 @@ class SplitClassifier(object):
 
                 if sample_preds[0] != adv_embed_y[i][0]:
                     wrong_first += 1
+                    
+                if self.y['test'] != adv_embed_y[i][0]:
+                    label_diff_count += 1
                     # print("predictions are wrong for the sentence %d"%(i))
 
                 equal = True
@@ -466,10 +470,10 @@ class SplitClassifier(object):
                         equal = False
                         no_of_dim_diff += 1
 
-                if equal == False:
-                    print("\nembeddings are not equal for the sentence %d, no of dims different %d" % (i, no_of_dim_diff))
-                    print("orig embeddings", self.X['test'][i])
-                    print("new embeddings\n", adv_embed_x[i][0])
+                # if equal == False:
+                #     print("\nembeddings are not equal for the sentence %d, no of dims different %d" % (i, no_of_dim_diff))
+                #     print("orig embeddings", self.X['test'][i])
+                #     print("new embeddings\n", adv_embed_x[i][0])
 
                 indexes_to_print = {4,12,15,17,18,26,36,43,48,52,56,59,63,67,69,72,76,79,83,88}
                 success_attack = False
@@ -486,12 +490,11 @@ class SplitClassifier(object):
                         change_count+=1
 
                 if success_attack and self.test_dataX is not None and self.test_dataY is not None:
-                    # if i not in indexes_to_print:
-                    #     continue
-                    print( self.get_sentence(adv_sentences[i][0]), sample_preds[0], len(adv_embed_x[i]))
-                    print( self.get_sentence(adv_sentences[i][1]), sample_preds[1], len(adv_sentences[i]))
-                    for wrong_index in wrong_indexes:
-                        print( self.get_sentence(adv_sentences[i][wrong_index]), sample_preds[wrong_index])
+                    if i in indexes_to_print:
+                        print( self.get_sentence(adv_sentences[i][0]), sample_preds[0], len(adv_embed_x[i]))
+                        print( self.get_sentence(adv_sentences[i][1]), sample_preds[1], len(adv_sentences[i]))
+                        for wrong_index in wrong_indexes:
+                            print( self.get_sentence(adv_sentences[i][wrong_index]), sample_preds[wrong_index])
 
 
                     # if i%10 == 0:
@@ -507,6 +510,7 @@ class SplitClassifier(object):
                 if i % 100 == 0:
                     print("%d sentences evaluated"%i)
 
+            print("label diff count:%d" % (label_diff_count))
             print("wring first count:%d" % (wrong_first))
             print("change due to randomness count:%d" % (change_due_to_randomness))
             print("non equal count:%d"%(np.count_nonzero(uneq_adversaries)))

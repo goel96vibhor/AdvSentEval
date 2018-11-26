@@ -85,7 +85,7 @@ class SSTEval(object):
         for stidx in range(0, total_samples, adv_batch_size):
 
             batch = self.sst_data['test']['X'][stidx:stidx + adv_batch_size]
-            batch_labels = sst_embed_y[stidx:stidx + adv_batch_size]
+            batch_labels = self.sst_data['test']['y'][stidx:stidx + adv_batch_size]
             batch_embeds = sst_embed_x[stidx:stidx + adv_batch_size]
 
             print("Computing adversarial samples for batch: %d no of sentences %d" %(stidx/adv_batch_size, len(batch) ))

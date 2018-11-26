@@ -219,104 +219,106 @@ class KFoldClassifier(object):
 
         #
         #
-        # allowed_error = 0.00001
-        # change_due_to_randomness = 0
-        # wrong_first = 0
-        # if self.config['adversarial_sample_generator'] is not None:
-        #     batcher = self.config['batcher'] if self.config['batcher'] is not None else None
-        #     adv_embed_x, adv_embed_y, adv_sentences = self.config['adversarial_sample_generator'](self.test['X'],self.test['y'], batcher = batcher)
-        #
-        #     adv_preds = []
-        #     for i in range(len(adv_embed_x)):
-        #         orig_pred = clf.predict(self.test['X'][i].reshape(1, -1))
-        #         # print("orig test vector shape ", self.test['X'].shape, "embedding vector shape " , len(adv_embed_x), len(adv_embed_x[0]))
-        #         orig_predictions.append(orig_pred)
-        #         sample_preds = np.vstack(clf.predict(adv_embed_x[i]))
-        #
-        #         adv_preds.append(sample_preds)
-        #         wrong_count = 0
-        #         change_count = 0
-        #
-        #         if i == 10:
-        #             print(get_sentence(adv_sentences[i][0]))
-        #             print("orig predcitions", adv_embed_y[i])
-        #             # print("new predictions", sample_preds)
-        #             print("orig embeddings", self.test['X'][i])
-        #             print("new embeddings", adv_embed_x[i][0])
-        #
-        #
-        #         if sample_preds[0] != sample_preds[1]:
-        #             change_due_to_randomness += 1
-        #             print("predictions are not equal for the sentence %d" % (i))
-        #         # orig_pred = sample_preds[0]
-        #
-        #         if sample_preds[0] != adv_embed_y[i][0]:
-        #             wrong_first += 1
-        #             # print("predictions are wrong for the sentence %d"%(i))
-        #
-        #         equal = True
-        #         no_of_dim_diff = 0
-        #         for j in range(len(adv_embed_x[i][0])):
-        #             if abs(adv_embed_x[i][0][j] - adv_embed_x[i][1][j]) >= allowed_error:
-        #                 equal = False
-        #                 no_of_dim_diff += 1
-        #
-        #         if equal == False:
-        #             print(
-        #                 "\nembeddings are not equal for the sentence %d, no of dims different %d" % (i, no_of_dim_diff))
-        #             print("orig embeddings", self.test['X'][i])
-        #             print("new embeddings\n", adv_embed_x[i][0])
-        #
-        #         indexes_to_print = {4, 12, 15, 17, 18, 26, 36, 43, 48, 52, 56, 59, 63, 67, 69, 72, 76, 79, 83, 88}
-        #         success_attack = False
-        #         wrong_indexes = []
-        #         for sample_pred, ind in zip(sample_preds, range(len(sample_preds))):
-        #
-        #             if sample_pred != adv_embed_y[i][0]:
-        #                 # print("")
-        #                 wrong_count += 1
-        #             if sample_pred != sample_preds[0]:
-        #                 success_attack = True
-        #                 wrong_indexes.append(ind)
-        #                 change_count += 1
-        #
-        #         if success_attack and self.test_dataX is not None and self.test_dataY is not None:
-        #             # if i not in indexes_to_print:
-        #             #     continue
-        #             print(self.get_sentence(adv_sentences[i][0]), sample_preds[0], len(adv_embed_x[i]))
-        #             print(self.get_sentence(adv_sentences[i][1]), sample_preds[1], len(adv_sentences[i]))
-        #             for wrong_index in wrong_indexes:
-        #                 print(self.get_sentence(adv_sentences[i][wrong_index]), sample_preds[wrong_index])
-        #
-        #             # if i%10 == 0:
-        #
-        #         uneq_adversaries.append(change_count)
-        #         wrong_adversaries.append(wrong_count)
-        #         total_adversaries.append(len(sample_preds))
-        #         # print sample_preds, adv_embed_y[i]
-        #         if i % 100 == 0:
-        #             print("%d sentences evaluated" % i)
-        #
-        #     print("wring first count:%d" % (wrong_first))
-        #     print("change due to randomness count:%d" % (change_due_to_randomness))
-        #     print("non equal count:%d" % (np.count_nonzero(uneq_adversaries)))
-        #     print("wrong count:%d" % (np.count_nonzero(wrong_adversaries)))
-        #     print("total count:%d" % (len(adv_embed_x)))
-        #     # print uneq_adversaries[:-10], total_adversaries[:-10]
-        #     print("adversaries size:%d" % (np.sum(total_adversaries)))
-        #
-        #     adv_results['total_adversaries'] = total_adversaries
-        #     adv_results['wrong_adversaries'] = wrong_adversaries
-        #     adv_results['uneq_adversaries'] = uneq_adversaries
-        #     adv_results['model'] = clf
-        #     adv_results['test_x'] = self.test['X']
-        #     adv_results['test_y'] = self.test['y']
-        #     adv_results['adv_test_x'] = adv_embed_x
-        #     adv_results['adv_test_y'] = adv_embed_y
-        #     adv_results['adv_preds'] = adv_preds
-        #     adv_results['orig_predictions'] = orig_predictions
-        # else:
-        #     print("No adversarial attacks specified")
+        allowed_error = 0.00001
+        change_due_to_randomness = 0
+        wrong_first = 0
+        label_diff_count = 0
+        if self.config['adversarial_sample_generator'] is not None:
+            batcher = self.config['batcher'] if self.config['batcher'] is not None else None
+            adv_embed_x, adv_embed_y, adv_sentences = self.config['adversarial_sample_generator'](self.test['X'],self.test['y'], batcher = batcher)
+
+            adv_preds = []
+            for i in range(len(adv_embed_x)):
+                orig_pred = clf.predict(self.test['X'][i].reshape(1, -1))
+                # print("orig test vector shape ", self.test['X'].shape, "embedding vector shape " , len(adv_embed_x), len(adv_embed_x[0]))
+                orig_predictions.append(orig_pred)
+                sample_preds = np.vstack(clf.predict(adv_embed_x[i]))
+
+                adv_preds.append(sample_preds)
+                wrong_count = 0
+                change_count = 0
+
+                if i == 10:
+                    print(get_sentence(adv_sentences[i][0]))
+                    print("orig predcitions", adv_embed_y[i])
+                    # print("new predictions", sample_preds)
+                    print("orig embeddings", self.test['X'][i])
+                    print("new embeddings", adv_embed_x[i][0])
+
+
+                if sample_preds[0] != sample_preds[1]:
+                    change_due_to_randomness += 1
+                    print("predictions are not equal for the sentence %d" % (i))
+                # orig_pred = sample_preds[0]
+
+                if sample_preds[0] != adv_embed_y[i][0]:
+                    wrong_first += 1
+                    # print("predictions are wrong for the sentence %d"%(i))
+
+                if self.test['y'][i] != adv_embed_y[i][0]:
+                    label_diff_count += 1
+
+                equal = True
+                no_of_dim_diff = 0
+                for j in range(len(adv_embed_x[i][0])):
+                    if abs(adv_embed_x[i][0][j] - adv_embed_x[i][1][j]) >= allowed_error:
+                        equal = False
+                        no_of_dim_diff += 1
+
+                # if equal == False:
+                #     print("\nembeddings are not equal for the sentence %d, no of dims different %d" % (i, no_of_dim_diff))
+                #     print("orig embeddings", self.test['X'][i])
+                #     print("new embeddings\n", adv_embed_x[i][0])
+
+                indexes_to_print = {4, 12, 15, 17, 18, 26, 36, 43, 48, 52, 56, 59, 63, 67, 69, 72, 76, 79, 83, 88}
+                success_attack = False
+                wrong_indexes = []
+                for sample_pred, ind in zip(sample_preds, range(len(sample_preds))):
+
+                    if sample_pred != adv_embed_y[i][0]:
+                        # print("")
+                        wrong_count += 1
+                    if sample_pred != sample_preds[0]:
+                        success_attack = True
+                        wrong_indexes.append(ind)
+                        change_count += 1
+
+                if success_attack and self.test_dataX is not None and self.test_dataY is not None:
+                    if i in indexes_to_print:
+                        print(self.get_sentence(adv_sentences[i][0]), sample_preds[0], len(adv_embed_x[i]))
+                        print(self.get_sentence(adv_sentences[i][1]), sample_preds[1], len(adv_sentences[i]))
+                        for wrong_index in wrong_indexes:
+                            print(self.get_sentence(adv_sentences[i][wrong_index]), sample_preds[wrong_index])
+
+                    # if i%10 == 0:
+
+                uneq_adversaries.append(change_count)
+                wrong_adversaries.append(wrong_count)
+                total_adversaries.append(len(sample_preds))
+                # print sample_preds, adv_embed_y[i]
+                if i % 100 == 0:
+                    print("%d sentences evaluated" % i)
+
+            print("wring first count:%d" % (wrong_first))
+            print("change due to randomness count:%d" % (change_due_to_randomness))
+            print("non equal count:%d" % (np.count_nonzero(uneq_adversaries)))
+            print("wrong count:%d" % (np.count_nonzero(wrong_adversaries)))
+            print("total count:%d" % (len(adv_embed_x)))
+            # print uneq_adversaries[:-10], total_adversaries[:-10]
+            print("adversaries size:%d" % (np.sum(total_adversaries)))
+
+            adv_results['total_adversaries'] = total_adversaries
+            adv_results['wrong_adversaries'] = wrong_adversaries
+            adv_results['uneq_adversaries'] = uneq_adversaries
+            adv_results['model'] = clf
+            adv_results['test_x'] = self.test['X']
+            adv_results['test_y'] = self.test['y']
+            adv_results['adv_test_x'] = adv_embed_x
+            adv_results['adv_test_y'] = adv_embed_y
+            adv_results['adv_preds'] = adv_preds
+            adv_results['orig_predictions'] = orig_predictions
+        else:
+            print("No adversarial attacks specified")
 
         return devaccuracy, testaccuracy, yhat
 

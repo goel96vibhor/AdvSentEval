@@ -57,11 +57,11 @@ class MRPCEval(object):
         adv_embed_x = []
         adv_embed_y = []
         adv_sentences = []
-        # adv_batch_size = self.params.batch_size
+        adv_batch_size = self.params.batch_size
 
         total_samples = len(sst_embed_x)
         # total_samples = 100
-        adv_batch_size = total_samples
+        # adv_batch_size = total_samples
         for stidx in range(0, total_samples, adv_batch_size):
 
             batch_a = self.mrpc_data['test']['X_A'][stidx:stidx + adv_batch_size]
@@ -72,13 +72,13 @@ class MRPCEval(object):
 
             debug_embeds = np.c_[np.abs( orig_vector_a - orig_vector_b), orig_vector_a * orig_vector_b]
 
-            print("debug embeds:", debug_embeds[0])
-            print("test actual embeds:", sst_embed_x[0])
+            if i == 0:
+                print("debug embeds:", debug_embeds[0])
+                print("test actual embeds:", sst_embed_x[0])
 
-            print("orig embeddings lengths:",  len(orig_vector_a), len(orig_vector_b))
+                print("orig embeddings lengths:",  len(orig_vector_a), len(orig_vector_b))
 
-            batch_labels = self.mrpc_data['test']['y'][stidx:stidx +
-                                             adv_batch_size]
+            batch_labels = self.mrpc_data['test']['y'][stidx:stidx + adv_batch_size]
             batch_embeds = sst_embed_x[stidx:stidx + adv_batch_size]
 
             print("Computing adversarial samples for batch: %d no of sentences %d" %(stidx/adv_batch_size, len(batch_a) ))

@@ -410,8 +410,9 @@ class SplitClassifier(object):
         wrong_adversaries = []
         adv_results = dict()
         orig_predictions = []
-
+        logging.info("Loading model from file")
         clf = pickle.load(open(filename, 'rb'))
+        logging.info("Loaded model from file")
 
         testaccuracy = clf.score(self.X['test'], self.y['test'])
         testaccuracy = round(100*testaccuracy, 2)

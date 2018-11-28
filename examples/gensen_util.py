@@ -34,6 +34,12 @@ sys.path.insert(1,PATH_TO_SENTEVAL)
 from AdversarialModels import WordNetSynonym
 import io
 
+def get_sentence(sentence):
+    sent = ""
+    for word in sentence:
+        sent+=word+" "
+    return sent
+
 
 def create_dictionary(sentences, threshold=0):
     words = {}
@@ -106,9 +112,11 @@ def prepare_adversarial_samples(params, sentences, y_labels):
         sent_adversaries.append(new_sent)
         sent_adv_labels.append(label)
 
-        if sent == sentences[43]:
-            print("orig sent vec", sent, " ,label:", label)
-            print("mod sent vec", new_sent)
+        # if sent == sentences[43]:
+        #     print("orig sent vec", get_sentence(sent), " ,label:", label)
+        #     print("mod sent vec", get_sentence(new_sent))
+
+
         for word, word_pos in zip(sent, range(len(sent))):
             # print "new word ", word, "-" *80
             if word in params.word_vec:
@@ -133,9 +141,8 @@ def prepare_adversarial_samples(params, sentences, y_labels):
                         sent_adversaries.append(new_sent)
                         sent_adv_labels.append(label)
 
-                        if sent == sentences[43]:
-                            # print("orig sent vec", sent)
-                            print("mod sent vec", new_sent)
+                        # if sent == sentences[43]:
+                        #     print("mod sent vec", get_sentence(new_sent))
 
                         # print "mod sent vec", "-" * 30
                         # print modified_vecs[len(modified_vecs)-1][:20], "\n"

@@ -661,8 +661,9 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
     else:
       output_spec = tf.contrib.tpu.TPUEstimatorSpec(
           mode=mode, predictions=probabilities, scaffold_fn=scaffold_fn)
-    return output_spec
     tf.logging.info("calling model_fn is complete")
+    return output_spec
+    tf.logging.info("calling model_fn_builder is complete")
   return model_fn
 
 

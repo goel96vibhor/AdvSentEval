@@ -18,7 +18,7 @@ from torch import nn
 import torch.optim as optim
 
 from scipy.stats import pearsonr
-
+import pickle
 
 class RelatednessPytorch(object):
     # Can be used for SICK-Relatedness, and STS14
@@ -38,10 +38,11 @@ class RelatednessPytorch(object):
         self.nclasses = config['nclasses']
         self.seed = config['seed']
         self.l2reg = 0.
-        self.batch_size = 64
+        self.batch_size = 8
         self.maxepoch = 1000
         self.early_stop = True
-
+        self.model_name = config['model_name'] if config['model_name'] is not None else ""
+        self.task_name = config['task_name'] if config['task_name'] is not None else ""
         self.model = nn.Sequential(
             nn.Linear(self.inputdim, self.nclasses),
             nn.Softmax(dim=-1),
@@ -73,6 +74,7 @@ class RelatednessPytorch(object):
         early_stop_count = 0
         r = np.arange(1, 6)
         stop_train = False
+        filename = 'models/finalized_model_' + self.model_name + '_' + self.task_name + '_.sav'
 
         # Preparing data
         trainX, trainy, devX, devy, testX, testy = self.prepare_data(
@@ -81,23 +83,26 @@ class RelatednessPytorch(object):
             self.test['X'], self.test['y'])
 
         # Training
-        while not stop_train and self.nepoch <= self.maxepoch:
-            self.trainepoch(trainX, trainy, nepoches=50)
-            yhat = np.dot(self.predict_proba(devX), r)
-            pr = pearsonr(yhat, self.devscores)[0]
-            pr = 0 if pr != pr else pr  # if NaN bc std=0
-            # early stop on Pearson
-            if pr > bestpr:
-                bestpr = pr
-                bestmodel = copy.deepcopy(self.model)
-            elif self.early_stop:
-                if early_stop_count >= 3:
-                    stop_train = True
-                early_stop_count += 1
-        self.model = bestmodel
+        # while not stop_train and self.nepoch <= self.maxepoch:
+        #     self.trainepoch(trainX, trainy, nepoches=50)
+        #     yhat = np.dot(self.predict_proba(devX), r)
+        #     pr = pearsonr(yhat, self.devscores)[0]
+        #     pr = 0 if pr != pr else pr  # if NaN bc std=0
+        #     # early stop on Pearson
+        #     if pr > bestpr:
+        #         bestpr = pr
+        #         bestmodel = copy.deepcopy(self.model)
+        #     elif self.early_stop:
+        #         if early_stop_count >= 3:
+        #             stop_train = True
+        #         early_stop_count += 1
+        # self.model = bestmodel
 
-        yhat = np.dot(self.predict_proba(testX), r)
-
+        # pickle.dump(self.model, open(filename, 'wb'))
+        self.model = pickle.load(open(filename, 'rb'))
+        test_preds = self.predict_proba(testX)
+        yhat = np.dot(test_preds, r)
+        print(test_preds.shape)
         return bestpr, yhat
 
     def trainepoch(self, X, y, nepoches=1):

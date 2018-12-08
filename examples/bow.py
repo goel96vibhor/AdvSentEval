@@ -159,7 +159,7 @@ def adversarialFunc(params, batch_sentences, batch_labels, embeddings):
 # Set params for SentEval
 np.set_printoptions(suppress=True)
 np.set_printoptions(precision=4)
-params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5, 'model_name': 'bow','batch_size': 8}
+params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5, 'model_name': 'bow','batch_size': 128}
 params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 128,
                                  'tenacity': 3, 'epoch_size': 2, 'cudaEfficient' : True}
 
@@ -175,8 +175,8 @@ if __name__ == "__main__":
     #                   'BigramShift', 'Tense', 'SubjNumber', 'ObjNumber',
     #                   'OddManOut', 'CoordinationInversion']
     # transfer_tasks = ['SST2']
-    # transfer_tasks = ['STSBenchmark']
-    transfer_tasks = ['MRPC']
+    transfer_tasks = ['STSBenchmark']
+    # transfer_tasks = ['MRPC']
     results = se.eval(transfer_tasks)
     # adv_results = results['SST2']['adv_results']
     # uneq_df = pd.DataFrame(adv_results['uneq_adversaries'])

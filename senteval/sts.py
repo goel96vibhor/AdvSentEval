@@ -153,6 +153,7 @@ class STSBenchmarkEval(SICKRelatednessEval):
     def __init__(self, task_path, seed=1111):
         logging.debug('\n\n***** Transfer task : STSBenchmark*****\n\n')
         self.seed = seed
+        self.task_name = 'STSBench'
         train = self.loadFile(os.path.join(task_path, 'sts-train.csv'))
         dev = self.loadFile(os.path.join(task_path, 'sts-dev.csv'))
         test = self.loadFile(os.path.join(task_path, 'sts-test.csv'))

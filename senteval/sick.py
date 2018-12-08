@@ -229,17 +229,17 @@ class SICKRelatednessEval(object):
 
         print("yhat shape:")
         print(yhat.shape)
-        pr = pearsonr(yhat, self.sick_data['test']['y'])[0]
-        sr = spearmanr(yhat, self.sick_data['test']['y'])[0]
+        pr = pearsonr(yhat, advs_trainY)[0]
+        sr = spearmanr(yhat, advs_trainY)[0]
         pr = 0 if pr != pr else pr
         sr = 0 if sr != sr else sr
-        se = mean_squared_error(yhat, self.sick_data['test']['y'])
+        se = mean_squared_error(yhat, advs_trainY)
         logging.debug('Dev : Pearson {0}'.format(devpr))
         logging.debug('Test : Pearson {0} Spearman {1} MSE {2} \
                                for SICK Relatedness\n'.format(pr, sr, se))
 
         return {'devpearson': devpr, 'pearson': pr, 'spearman': sr, 'mse': se,
-                'yhat': yhat, 'ndev': len(devA), 'ntest': len(testA)}
+                'yhat': yhat, 'ndev': len(devA), 'ntest': len(advs_trainA)}
 
     def encode_labels(self, labels, nclass=5):
         """

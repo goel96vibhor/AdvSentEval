@@ -48,6 +48,8 @@ class RelatednessPytorch(object):
             nn.Softmax(dim=-1),
         )
         self.loss_fn = nn.MSELoss()
+        self.model_loaded = False
+
 
         if torch.cuda.is_available():
             self.model = self.model.cuda()
@@ -77,10 +79,10 @@ class RelatednessPytorch(object):
         filename = 'models/finalized_model_' + self.model_name + '_' + self.task_name + '_.sav'
 
         # Preparing data
-        trainX, trainy, devX, devy, testX, testy = self.prepare_data(
-            self.train['X'], self.train['y'],
-            self.valid['X'], self.valid['y'],
-            self.test['X'], self.test['y'])
+        # trainX, trainy, devX, devy, testX, testy = self.prepare_data(
+        #     self.train['X'], self.train['y'],
+        #     self.valid['X'], self.valid['y'],
+        #     self.test['X'], self.test['y'])
 
         # Training
         # while not stop_train and self.nepoch <= self.maxepoch:
@@ -97,13 +99,38 @@ class RelatednessPytorch(object):
         #             stop_train = True
         #         early_stop_count += 1
         # self.model = bestmodel
-
+        #
         # pickle.dump(self.model, open(filename, 'wb'))
+        # test_preds = self.predict_proba(testX)
+        # yhat = np.dot(test_preds, r)
+        # print(test_preds.shape)
+
         self.model = pickle.load(open(filename, 'rb'))
-        test_preds = self.predict_proba(testX)
+        test_preds =[]
+        test_preds.extend(self.predict_batch_proba(self.test['X']))
+        test_preds = np.array(test_preds)
         yhat = np.dot(test_preds, r)
         print(test_preds.shape)
+
         return bestpr, yhat
+
+    def predict(self, test_x):
+
+        r = np.arange(1, 6)
+        filename = 'models/finalized_model_' + self.model_name + '_' + self.task_name + '_.sav'
+
+
+        if self.model_loaded == False :
+            self.model = pickle.load(open(filename, 'rb'))
+            self.model_loaded = True
+        test_preds =[]
+        test_preds.extend(self.predict_batch_proba(test_x))
+        test_preds = np.array(test_preds)
+        yhat = np.dot(test_preds, r)
+        print(test_preds.shape)
+
+        return yhat
+
 
     def trainepoch(self, X, y, nepoches=1):
         self.model.train()
@@ -132,6 +159,20 @@ class RelatednessPytorch(object):
         with torch.no_grad():
             for i in range(0, len(devX), self.batch_size):
                 Xbatch = devX[i:i + self.batch_size]
+                if len(probas) == 0:
+                    probas = self.model(Xbatch).data.cpu().numpy()
+                else:
+                    probas = np.concatenate((probas, self.model(Xbatch).data.cpu().numpy()), axis=0)
+        return probas
+
+
+    def predict_batch_proba(self, devX):
+        self.model.eval()
+        probas = []
+        with torch.no_grad():
+            for i in range(0, len(devX), self.batch_size):
+                Xbatch = devX[i:i + self.batch_size]
+                Xbatch = torch.from_numpy(Xbatch).float().cuda()
                 if len(probas) == 0:
                     probas = self.model(Xbatch).data.cpu().numpy()
                 else:

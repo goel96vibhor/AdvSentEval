@@ -551,11 +551,11 @@ class SICKRelatednessEval(object):
         se = mean_squared_error(new_preds, self.sick_data['test']['y'])
         logging.debug('Test : Pearson {0} Spearman {1} MSE {2} \
                                                for SICK Relatedness\n'.format(pr, sr, se))
-
+        test_yhat = test_preds
         devpr = -1
 
         return {'devpearson': devpr, 'pearson': pr, 'spearman': sr, 'mse': se,
-                'yhat': advs_train_yhat, 'ndev': len(devA), 'ntest': len(advs_trainA)}
+                'yhat': test_yhat, 'ndev': len(devA), 'ntest': len(advs_trainA)}
 
     def encode_labels(self, labels, nclass=5):
         """

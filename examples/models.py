@@ -282,9 +282,9 @@ class InferSent(nn.Module):
             sent_adversaries.append(new_sent)
             sent_adv_labels.append(label)
 
-            if sent == sentences[43]:
-                print("orig sent vec", sent, " ,label:", label)
-                print("mod sent vec", new_sent)
+            # if sent == sentences[43]:
+            #     print("orig sent vec", sent, " ,label:", label)
+            #     print("mod sent vec", new_sent)
             for word, word_pos in zip(sent, range(len(sent))):
                 # print "new word ", word, "-" *80
                 if word in self.word_vec:
@@ -309,9 +309,9 @@ class InferSent(nn.Module):
                             sent_adversaries.append(new_sent)
                             sent_adv_labels.append(label)
 
-                            if sent == sentences[43]:
-                                # print("orig sent vec", sent)
-                                print("mod sent vec", new_sent)
+                            # if sent == sentences[43]:
+                            #     # print("orig sent vec", sent)
+                            #     print("mod sent vec", new_sent)
 
                             # print "mod sent vec", "-" * 30
                             # print modified_vecs[len(modified_vecs)-1][:20], "\n"

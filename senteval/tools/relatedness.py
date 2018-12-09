@@ -79,38 +79,38 @@ class RelatednessPytorch(object):
         filename = 'models/finalized_model_' + self.model_name + '_' + self.task_name + '_.sav'
 
         # Preparing data
-        # trainX, trainy, devX, devy, testX, testy = self.prepare_data(
-        #     self.train['X'], self.train['y'],
-        #     self.valid['X'], self.valid['y'],
-        #     self.test['X'], self.test['y'])
+        trainX, trainy, devX, devy, testX, testy = self.prepare_data(
+            self.train['X'], self.train['y'],
+            self.valid['X'], self.valid['y'],
+            self.test['X'], self.test['y'])
 
         # Training
-        # while not stop_train and self.nepoch <= self.maxepoch:
-        #     self.trainepoch(trainX, trainy, nepoches=50)
-        #     yhat = np.dot(self.predict_proba(devX), r)
-        #     pr = pearsonr(yhat, self.devscores)[0]
-        #     pr = 0 if pr != pr else pr  # if NaN bc std=0
-        #     # early stop on Pearson
-        #     if pr > bestpr:
-        #         bestpr = pr
-        #         bestmodel = copy.deepcopy(self.model)
-        #     elif self.early_stop:
-        #         if early_stop_count >= 3:
-        #             stop_train = True
-        #         early_stop_count += 1
-        # self.model = bestmodel
-        #
-        # pickle.dump(self.model, open(filename, 'wb'))
-        # test_preds = self.predict_proba(testX)
-        # yhat = np.dot(test_preds, r)
-        # print(test_preds.shape)
+        while not stop_train and self.nepoch <= self.maxepoch:
+            self.trainepoch(trainX, trainy, nepoches=50)
+            yhat = np.dot(self.predict_proba(devX), r)
+            pr = pearsonr(yhat, self.devscores)[0]
+            pr = 0 if pr != pr else pr  # if NaN bc std=0
+            # early stop on Pearson
+            if pr > bestpr:
+                bestpr = pr
+                bestmodel = copy.deepcopy(self.model)
+            elif self.early_stop:
+                if early_stop_count >= 3:
+                    stop_train = True
+                early_stop_count += 1
+        self.model = bestmodel
 
-        self.model = pickle.load(open(filename, 'rb'))
-        test_preds =[]
-        test_preds.extend(self.predict_batch_proba(self.test['X']))
-        test_preds = np.array(test_preds)
+        pickle.dump(self.model, open(filename, 'wb'))
+        test_preds = self.predict_proba(testX)
         yhat = np.dot(test_preds, r)
         print(test_preds.shape)
+
+        # self.model = pickle.load(open(filename, 'rb'))
+        # test_preds =[]
+        # test_preds.extend(self.predict_batch_proba(self.test['X']))
+        # test_preds = np.array(test_preds)
+        # yhat = np.dot(test_preds, r)
+        # print(test_preds.shape)
 
         return bestpr, yhat
 

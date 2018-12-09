@@ -56,10 +56,10 @@ def adversarialFunc(params, batch_sentences, batch_labels, embeddings = None):
 
     adv_batch_sentences, adv_labels = params.infersent.prepare_adversarial_samples(batch_sentences, batch_labels)
 
-    print("adv samples size %d",len(adv_batch_sentences))
+    # print("adv samples size %d",len(adv_batch_sentences))
 
     total_count = sum(len(x) for x in adv_batch_sentences)
-    print("sum of sentences called %d, batch_size %d" %(total_count, params.batch_size))
+    # print("sum of sentences called %d, batch_size %d" %(total_count, params.batch_size))
 
     adv_embeddings = []
 
@@ -74,10 +74,10 @@ def adversarialFunc(params, batch_sentences, batch_labels, embeddings = None):
             print("%d sentences done"%(i))
             # print("Adv embeddings shape: %s, adv_labels shape", len(sent_adv_embeddings), dim(adv_labels[i]))
 
-    print("Adv embeddings shape: %s, adv_labels shape",dim(adv_embeddings),dim(adv_labels))
+    # print("Adv embeddings shape: %s, adv_labels shape",dim(adv_embeddings),dim(adv_labels))
 
-    for i in range(0,len(adv_embeddings),10):
-        print("Adv embeddings shape: %s, adv_labels shape", len(adv_embeddings[i]), len(adv_labels[i]))
+    # for i in range(0,len(adv_embeddings),10):
+    #     print("Adv embeddings shape: %s, adv_labels shape", len(adv_embeddings[i]), len(adv_labels[i]))
     return adv_embeddings, adv_labels, adv_batch_sentences
 
 
@@ -86,7 +86,7 @@ Evaluation of trained model on Transfer Tasks (SentEval)
 """
 
 # define senteval params
-params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5, 'model_name': 'infersent','batch_size': 8, 'train': False}
+params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5, 'model_name': 'infersent','batch_size': 128, 'train': False}
 params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 128,
                                  'tenacity': 3, 'epoch_size': 2}
 # Set up logger
@@ -106,6 +106,6 @@ if __name__ == "__main__":
     params_senteval['infersent'] = model.cuda()
     se = senteval.engine.SE(params_senteval, batcher, prepare, adversarialFunc=adversarialFunc)
     # transfer_tasks = ['SST2']
-    transfer_tasks = ['MRPC']
+    transfer_tasks = ['STSBenchmark']
     results = se.eval(transfer_tasks)
     # print(results)
